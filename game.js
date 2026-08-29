@@ -125,6 +125,9 @@ const game = {
             return;
         }
         
+        // Shuffle options and track correct answer
+        const shuffledData = this.shuffleOptions(scenario.options, scenario.answer);
+        
         // Update UI
         const typeEl = document.getElementById('scenario-type');
         const countEl = document.getElementById('scenario-count');
@@ -146,9 +149,11 @@ const game = {
         
         if (optionsContainer) {
             const className = this.state.phase === 'coding' ? 'code-option' : 'option-btn';
-            optionsContainer.innerHTML = scenario.options.map((opt, idx) => `
+            optionsContainer.innerHTML = shuffledData.options.map((opt, idx) => `
                 <div class="${className}" onclick="game.checkAnswer(${idx})">${opt}</div>
             `).join('');
+            // Store the correct index for this shuffled scenario
+            this.currentCorrectAnswer = shuffledData.correctIndex;
         }
         
         if (this.state.phase === 'coding') {
@@ -158,25 +163,38 @@ const game = {
         }
     },
     
+    // Shuffle options and return new array with correct index
+    shuffleOptions(options, originalCorrectIndex) {
+        // Create array of objects with original index
+        const indexed = options.map((opt, idx) => ({ text: opt, originalIdx: idx }));
+        
+        // Fisher-Yates shuffle
+        for (let i = indexed.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+        }
+        
+        // Find new position of correct answer
+        const newCorrectIndex = indexed.findIndex(item => item.originalIdx === originalCorrectIndex);
+        
+        return {
+            options: indexed.map(item => item.text),
+            correctIndex: newCorrectIndex
+        };
+    },
+    
     // Check answer
     checkAnswer(selectedIndex) {
-        let scenario;
-        if (this.state.phase === 'survival') {
-            scenario = SURVIVAL_SCENARIOS[this.state.scenarioIndex];
-        } else if (this.state.phase === 'decision') {
-            scenario = DECISION_SCENARIOS[this.state.scenarioIndex];
-        } else {
-            scenario = CODING_CHALLENGES[this.state.codingIndex];
-        }
+        const correctIndex = this.currentCorrectAnswer;
         
         const optionsContainer = document.getElementById(this.state.phase === 'coding' ? 'code-options' : 'options-list');
         const buttons = optionsContainer.querySelectorAll('.option-btn, .code-option');
         
         // Mark correct/wrong
         buttons.forEach((btn, idx) => {
-            if (idx === scenario.answer) {
+            if (idx === correctIndex) {
                 btn.classList.add('correct');
-            } else if (idx === selectedIndex && idx !== scenario.answer) {
+            } else if (idx === selectedIndex && idx !== correctIndex) {
                 btn.classList.add('wrong');
             }
         });
@@ -185,7 +203,7 @@ const game = {
         buttons.forEach(btn => btn.style.pointerEvents = 'none');
         
         // Track score
-        if (selectedIndex === scenario.answer) {
+        if (selectedIndex === correctIndex) {
             this.state.score++;
         }
         

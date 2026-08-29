@@ -89,7 +89,8 @@ const AIRCRAFT = [
 
 // ============================================
 // SURVIVAL SCENARIOS (Harder - General Knowledge)
-// Answer is the index of correct option (0-based)
+// Options are shuffled automatically in game.js
+// Answer refers to the ORIGINAL correct option index before shuffle
 // ============================================
 
 const SURVIVAL_SCENARIOS = [
@@ -163,6 +164,8 @@ const SURVIVAL_SCENARIOS = [
 
 // ============================================
 // DECISION SCENARIOS (Harder - Moral/Ethical Choices)
+// Options are shuffled automatically in game.js
+// Answer refers to the ORIGINAL correct option index before shuffle
 // ============================================
 
 const DECISION_SCENARIOS = [
@@ -237,6 +240,8 @@ const DECISION_SCENARIOS = [
 // ============================================
 // CODING CHALLENGES (Easier - Beginner Friendly)
 // Simple concepts, clear answers
+// Options are shuffled automatically in game.js
+// Answer refers to the ORIGINAL correct option index before shuffle
 // ============================================
 
 const CODING_CHALLENGES = [

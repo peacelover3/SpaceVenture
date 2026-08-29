@@ -49,10 +49,21 @@ body {
 }
 
 /* Fallback gradient if no images */
-.bg-slide[style*="url('')"],
 .bg-slide:not([style*="http"]) {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
 }
+
+/* Set background images via JS */
+.bg-slide:nth-child(1) { background-image: url('assets/bg1.jpg'); }
+.bg-slide:nth-child(2) { background-image: url('assets/bg2.jpg'); }
+.bg-slide:nth-child(3) { background-image: url('assets/bg3.jpg'); }
+.bg-slide:nth-child(4) { background-image: url('assets/bg4.jpg'); }
+.bg-slide:nth-child(5) { background-image: url('assets/bg5.jpg'); }
+.bg-slide:nth-child(6) { background-image: url('assets/bg6.jpg'); }
+.bg-slide:nth-child(7) { background-image: url('assets/bg7.jpg'); }
+.bg-slide:nth-child(8) { background-image: url('assets/bg8.jpg'); }
+.bg-slide:nth-child(9) { background-image: url('assets/bg9.jpg'); }
+.bg-slide:nth-child(10) { background-image: url('assets/bg10.jpg'); }
 
 /* Game Container */
 .game-container {
