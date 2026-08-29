@@ -1,180 +1,94 @@
-# 🚀 Space Mission - Educational Game
+# 🚀 Space Mission - Personal Educational Game
 
-A personalized, space-themed educational web game that can be customized for different recipients. Perfect as a personal gift!
+A space-themed educational game built as a personal gift. Fully customizable for any recipient!
 
-## 🎮 Features
+## 🎮 How to Play
 
-- **No Music** - Completely silent gameplay
-- **Fully Customizable** - Easy configuration for different recipients
-- **Educational Content** - Three types of challenges:
-  - 🏃 Survival scenarios (general knowledge)
-  - 🤔 Decision-making scenarios
-  - 💻 Programming challenges (6 levels)
-- **Personalized Experience** - Names, squad details, and storylines adapt to the recipient
-- **Beautiful UI** - Space-themed design with smooth animations
-- **Responsive** - Works on desktop and mobile devices
+1. **Open the game**: Simply open `index.html` in any web browser (works on mobile too!)
+2. **Start your mission**: Follow the storyline from briefing to space battle
+3. **Complete challenges**: Answer survival scenarios, make tough decisions, and solve coding puzzles
+4. **Win or lose**: Get 60%+ to save Earth, otherwise... well, you'll see 😅
 
-## 📁 File Structure
+## ✏️ How to Customize (IMPORTANT!)
 
-```
-/workspace
-├── index.html          # Main HTML file
-├── styles.css          # All styling
-├── config.js           # ⭐ CONFIGURATION FILE - Edit this!
-├── game.js             # Game logic
-└── README.md           # This file
-```
-
-## 🔧 How to Customize
-
-### Step 1: Edit the Configuration File
-
-Open `config.js` and modify the following sections:
-
-#### 1. Recipient Information (REQUIRED)
-```javascript
-recipient: {
-    name: "Alex Johnson",           // Change to recipient's name
-    squadName: "Stellar Guardians",  // Change squad name
-    rank: "Cadet",                   // Their rank
-    specialAbility: "Quick Thinking" // Their special trait
-},
-```
-
-#### 2. Storyline Details (OPTIONAL)
-```javascript
-storyline: {
-    threatName: "Xenon Aliens",      // Enemy name
-    headquartersName: "Alpha Station", // HQ name
-    briefingOfficer: "Commander Reyes" // Briefing officer name
-},
-```
-
-#### 3. Aircraft Options (OPTIONAL - 6 pre-configured)
-You can modify the 6 aircraft names, descriptions, and stats in the `aircrafts` array.
-
-#### 4. Scenarios (OPTIONAL)
-- **Survival**: 3 general knowledge questions
-- **Decision**: 3 personal choice scenarios  
-- **Programming**: 6 JavaScript coding challenges (levels 1-6)
-
-#### 5. Background Images (OPTIONAL)
-Add your own images by providing file paths:
-```javascript
-backgrounds: {
-    intro: "images/intro.jpg",
-    headquarters: "images/hq.jpg",
-    aircraftSelection: "images/hangar.jpg",
-    space: "images/space.jpg",
-    victory: "images/victory.jpg"
-}
-```
-
-If left empty, beautiful space-themed gradients are used automatically.
-
-## 🚀 How to Run
-
-### Option 1: Direct Browser (Simplest)
-1. Navigate to the `/workspace` folder
-2. Double-click `index.html`
-3. The game opens in your default browser
-
-### Option 2: Local Server (Recommended)
-```bash
-cd /workspace
-python3 -m http.server 8000
-```
-Then open `http://localhost:8000` in your browser.
-
-### Option 3: Deploy Online
-Upload all files to:
-- GitHub Pages
-- Netlify
-- Vercel
-- Any static hosting service
-
-## 🎯 Gameplay Flow
-
-1. **Intro Screen** - Personalized welcome message
-2. **Headquarters Briefing** - Story setup with mission details
-3. **Aircraft Selection** - Choose from 6 spacecraft
-4. **Space Battle** - Complete challenges:
-   - Survival scenarios
-   - Decision scenarios
-   - Programming challenges (6 levels)
-5. **Victory Screen** - Final score and personalized congratulations
-
-## 💡 Tips for Best Experience
-
-1. **Personalize Everything**: The more you customize names and details, the more meaningful the gift
-2. **Add Your Images**: If you have specific images (briefing room, etc.), add them to the backgrounds section
-3. **Adjust Difficulty**: Modify programming challenges based on recipient's skill level
-4. **Test First**: Play through once to ensure all customizations work correctly
-
-## 🎨 Visual Style
-
-- **Theme**: Dark space environment with blue/purple accents
-- **UI Elements**: Semi-transparent panels, glowing effects
-- **Animations**: Smooth transitions and hover effects
-- **Typography**: Clean, modern fonts with code editor styling
-
-## 📝 Adding More Content
-
-### Add More Survival/Decision Scenarios
-In `config.js`, simply add more objects to the arrays:
+**Edit `config.js`** to personalize the game for each recipient:
 
 ```javascript
-survival: [
-    // existing scenarios...
-    {
-        question: "Your new question here?",
-        options: ["Option A", "Option B", "Option C", "Option D"],
-        correct: 0, // Index of correct answer (0-3)
-        explanation: "Why this is correct"
-    }
-]
-```
-
-### Add More Programming Levels
-Add to the `programming` array with validation function:
-
-```javascript
-{
-    level: 7,
-    title: "Your Challenge Title",
-    instruction: "What the player needs to do",
-    starterCode: "// Starting code",
-    expectedOutput: "What should happen",
-    validate: (code) => {
-        // Return true if code is correct
-        try {
-            eval(code);
-            return someCondition;
-        } catch {
-            return false;
-        }
+const CONFIG = {
+    recipient: {
+        name: "Alex",           // Change to recipient's name
+        rank: "Cadet",          // Their rank/title
+        squadName: "Phoenix",   // Squad name
+        specialAbility: "Quick Thinking"
     },
-    hint: "Helpful hint"
+    story: {
+        enemyName: "Zorgons",       // Alien enemy name
+        headquarters: "Alpha Base", // HQ name
+        briefingOfficer: "Commander Reyes",
+        homePlanet: "Earth"         // Failure = enslaved here
+    }
+};
+```
+
+That's it! Change these values and the entire game updates automatically.
+
+## 📁 Adding Your Images
+
+Place your background images in the `assets/` folder:
+
+- `bg1.jpg` - Start screen background
+- `bg2.jpg` - Briefing room
+- `bg3.jpg` - Aircraft selection
+- `bg4.jpg` - Space battle
+- `bg5.jpg` - Victory screen
+- `bg6.jpg` - Defeat screen
+
+**No images?** No problem! The game uses beautiful gradient backgrounds by default.
+
+To use your images, edit `config.js`:
+```javascript
+images: {
+    start: "assets/bg1.jpg",
+    briefing: "assets/bg2.jpg",
+    // etc...
 }
 ```
 
-## 🛠️ Technical Details
+## 🎯 Game Features
 
-- **Pure HTML/CSS/JavaScript** - No frameworks or dependencies
-- **Single Page Application** - Smooth transitions between scenes
-- **Client-side Only** - No server required
-- **Browser Compatible** - Works on all modern browsers
-- **Mobile Responsive** - Adapts to different screen sizes
+✅ **Mobile-friendly** - Works perfectly on phones and tablets  
+✅ **No music** - Silent gameplay as requested  
+✅ **Dynamic personalization** - One config file changes everything  
+✅ **6 spacecraft choices** - Each with unique stats  
+✅ **3 challenge types**:
+   - Survival scenarios (harder general knowledge)
+   - Decision scenarios (ethical/moral choices)
+   - Coding challenges (beginner-friendly)
+✅ **Background slideshow** - Images transition every 5 seconds  
+✅ **Lose condition** - Getting captured and enslaved by aliens  
+
+## 📱 Mobile Support
+
+The game is fully responsive:
+- Touch-friendly buttons
+- Optimized layouts for small screens
+- Works in portrait and landscape
+- No zoom issues
+
+## 🛠️ Tech Stack
+
+- Pure HTML/CSS/JavaScript (no frameworks needed)
+- Works offline
+- No dependencies
+- Just open and play!
 
 ## 🎁 Perfect For
 
-- Birthday gifts
-- Farewell presents
-- Team building activities
+- Personal gifts
 - Educational purposes
-- Coding practice
-- Personalized surprises
+- Team building activities
+- Learning basic programming concepts
 
 ---
 
-**Enjoy creating your personalized space adventure! 🚀⭐**
+**Made with ❤️ as a personal gift**

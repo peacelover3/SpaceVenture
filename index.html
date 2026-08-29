@@ -2,18 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Mission - Educational Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Space Mission</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="game-container">
-        <!-- Scene backgrounds will be displayed here -->
-        <div id="background-layer"></div>
-        
-        <!-- Main game content -->
-        <div id="content-layer">
-            <!-- Dynamic content will be injected here -->
+    <!-- Background Slideshow -->
+    <div class="bg-slideshow">
+        <div class="bg-slide active" style="background-image: url('assets/bg1.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/bg2.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/bg3.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/bg4.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/bg5.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/bg6.jpg')"></div>
+    </div>
+    <div class="bg-overlay"></div>
+
+    <div class="game-container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="content-box">
+                <h1 class="game-title">🚀 Space Mission</h1>
+                <p class="squad-name" id="start-squad"></p>
+                <button class="btn-primary" onclick="game.start()">Start Mission</button>
+            </div>
+        </div>
+
+        <!-- Briefing Screen -->
+        <div id="briefing-screen" class="screen">
+            <div class="content-box">
+                <h2>Briefing</h2>
+                <div class="briefing-text" id="briefing-content"></div>
+                <button class="btn-primary" onclick="game.toAircraftSelect()">Got it</button>
+            </div>
+        </div>
+
+        <!-- Aircraft Selection -->
+        <div id="aircraft-screen" class="screen">
+            <div class="content-box">
+                <h2>Pick Your Ride</h2>
+                <p class="subtitle">Choose wisely - each ship handles different</p>
+                <div class="aircraft-grid" id="aircraft-list"></div>
+            </div>
+        </div>
+
+        <!-- Scenario Screen -->
+        <div id="scenario-screen" class="screen">
+            <div class="content-box">
+                <div class="scenario-header">
+                    <span class="scenario-type" id="scenario-type"></span>
+                    <span class="scenario-count" id="scenario-count"></span>
+                </div>
+                <h3 id="scenario-question"></h3>
+                <div class="options-container" id="options-list"></div>
+            </div>
+        </div>
+
+        <!-- Coding Screen -->
+        <div id="coding-screen" class="screen">
+            <div class="content-box">
+                <h3 id="coding-question"></h3>
+                <p class="hint" id="coding-hint"></p>
+                <div class="code-options" id="code-options"></div>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory-screen" class="screen">
+            <div class="content-box victory">
+                <h2>🎉 Mission Complete!</h2>
+                <p id="victory-message"></p>
+                <button class="btn-primary" onclick="game.restart()">Play Again</button>
+            </div>
+        </div>
+
+        <!-- Defeat Screen -->
+        <div id="defeat-screen" class="screen">
+            <div class="content-box defeat">
+                <h2>💀 Mission Failed</h2>
+                <p id="defeat-message"></p>
+                <button class="btn-primary" onclick="game.restart()">Try Again</button>
+            </div>
         </div>
     </div>
 
