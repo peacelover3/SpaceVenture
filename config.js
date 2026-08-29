@@ -1,319 +1,223 @@
-// ============================================
-// PERSONALIZATION CONFIG - EDIT THIS FILE
-// Change these values for each recipient
-// ============================================
-
+// Game Configuration
 const CONFIG = {
-    // Recipient Details
-    recipient: {
-        name: "Alex",           // Person's name
-        rank: "Cadet",          // Their rank in the squad
-        squadName: "Phoenix",   // Squad name
-        specialAbility: "Quick Thinking"  // Their special trait
-    },
+    // Player settings
+    playerSpeed: 0.15,
+    bulletSpeed: 8,
+    fireRate: 200, // ms between shots
+    maxHealth: 100,
     
-    // Story Elements
-    story: {
-        enemyName: "Zorgons",        // Alien enemy name
-        headquarters: "Alpha Base",  // HQ name
-        briefingOfficer: "Commander Reyes",  // Who gives briefing
-        homePlanet: "Earth"          // Home planet (failure = enslaved here)
-    },
+    // Enemy settings
+    enemySpawnRate: 1500, // ms between enemy spawns
+    enemyBaseSpeed: 2,
+    enemyBaseHealth: 1,
     
-    // Optional: Add image filenames if you have them
-    // Leave empty strings to use gradient backgrounds
-    images: {
-        start: "",        // e.g., "assets/start.jpg"
-        briefing: "",     // e.g., "assets/briefing.jpg"
-        aircraft: "",     // e.g., "assets/aircraft.jpg"
-        space: "",        // e.g., "assets/space.jpg"
-        victory: "",      // e.g., "assets/victory.jpg"
-        defeat: ""        // e.g., "assets/defeat.jpg"
-    }
+    // Boss settings
+    bossHealth: 5,
+    bossDamage: 20,
+    
+    // Wave settings
+    enemiesPerWave: 8,
+    wavesBeforeBoss: 3,
+    
+    // Scoring
+    scorePerEnemy: 100,
+    scorePerBoss: 500,
+    scorePerPuzzle: 1000,
+    
+    // Puzzle settings
+    puzzleAttempts: 3,
+    hintPenalty: 200,
+    
+    // Save key
+    saveKey: 'codeDefenderSave'
 };
 
-// ============================================
-// AIRCRAFT OPTIONS (6 choices)
-// ============================================
+// Planet/Level Data
+const LEVELS = [
+    {
+        id: 0,
+        name: "Earth",
+        color: "#4a9eff",
+        concept: "Sequencing",
+        description: "Our home planet! The aliens are attacking Earth first. You must defend it at all costs!",
+        briefing: `
+            <h3>🌍 EARTH - Level 1: Sequencing</h3>
+            <p><strong>Mission:</strong> Defend Earth from the initial alien invasion!</p>
+            <p><strong>Programming Concept - Sequencing:</strong> Code executes line by line, in order. Just like following a recipe step-by-step!</p>
+            <p><strong>Example:</strong></p>
+            <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+1. Wake up
+2. Brush teeth
+3. Eat breakfast
+4. Go to school
+            </pre>
+            <p>If you change the order, things don't work right! In this level, you'll learn that doing things in the correct sequence is crucial.</p>
+            <p><strong>Boss Challenge:</strong> Arrange the correct sequence of actions to defeat the mothership!</p>
+        `,
+        background: "#0a1628",
+        enemyType: "basic",
+        bossName: "Scout Mothership"
+    },
+    {
+        id: 1,
+        name: "Planet Zog",
+        color: "#ff6b6b",
+        concept: "Loops",
+        description: "A red desert planet. The aliens use repeating patterns here!",
+        briefing: `
+            <h3>🔴 PLANET ZOG - Level 2: Loops</h3>
+            <p><strong>Mission:</strong> Conquer your first alien planet!</p>
+            <p><strong>Programming Concept - Loops:</strong> Repeat actions without writing the same code over and over!</p>
+            <p><strong>Example:</strong></p>
+            <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+// Instead of:
+print("Hello")
+print("Hello")
+print("Hello")
 
-const AIRCRAFT = [
-    {
-        name: "Interceptor",
-        icon: "⚡",
-        speed: "Very High",
-        defense: "Low",
-        firepower: "Medium",
-        description: "Fast but fragile. Hit hard, hit fast."
+// Use a loop:
+for i in range(3):
+    print("Hello")
+            </pre>
+            <p>Loops save time and make code cleaner! The aliens here attack in repeating patterns - use loops to understand them!</p>
+            <p><strong>Boss Challenge:</strong> Identify the correct loop pattern to counter the alien attacks!</p>
+        `,
+        background: "#280a0a",
+        enemyType: "pattern",
+        bossName: "Loop Commander"
     },
     {
-        name: "Titan",
-        icon: "🛡️",
-        speed: "Low",
-        defense: "Very High",
-        firepower: "High",
-        description: "Heavy armor. Built to survive."
+        id: 2,
+        name: "Planet Xylos",
+        color: "#6bff6b",
+        concept: "Conditions",
+        description: "A green jungle planet where decisions matter!",
+        briefing: `
+            <h3>🟢 PLANET XYLOS - Level 3: Conditions (If/Else)</h3>
+            <p><strong>Mission:</strong> Make the right decisions to conquer this planet!</p>
+            <p><strong>Programming Concept - Conditions:</strong> Make decisions in your code based on different situations!</p>
+            <p><strong>Example:</strong></p>
+            <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+if health < 30:
+    retreat()
+elif enemy_nearby:
+    shoot()
+else:
+    explore()
+            </pre>
+            <p>Conditions let your program make smart decisions! On this planet, you'll face choices that determine victory or defeat.</p>
+            <p><strong>Boss Challenge:</strong> Choose the correct if/else logic to defeat the boss!</p>
+        `,
+        background: "#0a280a",
+        enemyType: "smart",
+        bossName: "Decision Master"
     },
     {
-        name: "Phantom",
-        icon: "👻",
-        speed: "High",
-        defense: "Medium",
-        firepower: "Medium",
-        description: "Balanced stealth fighter."
+        id: 3,
+        name: "Nebula Prime",
+        color: "#ff6bff",
+        concept: "Variables",
+        description: "A purple nebula world full of stored energy!",
+        briefing: `
+            <h3>🟣 NEBULA PRIME - Level 4: Variables</h3>
+            <p><strong>Mission:</strong> Capture the energy variables of this nebula!</p>
+            <p><strong>Programming Concept - Variables:</strong> Store and remember values for later use!</p>
+            <p><strong>Example:</strong></p>
+            <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+player_health = 100
+enemy_count = 5
+score = 0
+
+# Update variables
+score = score + 100
+enemy_count = enemy_count - 1
+            </pre>
+            <p>Variables are like labeled boxes that hold information. They can change over time!</p>
+            <p><strong>Boss Challenge:</strong> Track and manipulate variables to power up your weapon!</p>
+        `,
+        background: "#280a28",
+        enemyType: "variable",
+        bossName: "Variable Guardian"
     },
     {
-        name: "Vanguard",
-        icon: "🔥",
-        speed: "Medium",
-        defense: "High",
-        firepower: "Very High",
-        description: "Offensive powerhouse."
+        id: 4,
+        name: "Void Station",
+        color: "#6bffff",
+        concept: "Functions",
+        description: "An icy space station where reusable code is key!",
+        briefing: `
+            <h3>🔵 VOID STATION - Level 5: Functions</h3>
+            <p><strong>Mission:</strong> Break through the station's defenses!</p>
+            <p><strong>Programming Concept - Functions:</strong> Reusable blocks of code that perform specific tasks!</p>
+            <p><strong>Example:</strong></p>
+            <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+def shoot_enemy(target):
+    aim(target)
+    fire()
+    return True
+
+# Use the function multiple times
+shoot_enemy(alien1)
+shoot_enemy(alien2)
+            </pre>
+            <p>Functions let you write code once and use it many times! They make programs organized and efficient.</p>
+            <p><strong>Boss Challenge:</strong> Assemble the right function calls to disable the station!</p>
+        `,
+        background: "#0a2828",
+        enemyType: "function",
+        bossName: "Function Core"
     },
     {
-        name: "Scout",
-        icon: "🦅",
-        speed: "Very High",
-        defense: "Very Low",
-        firepower: "Low",
-        description: "Recon specialist. Extreme speed."
+        id: 5,
+        name: "Dark Matter",
+        color: "#ffaa6b",
+        concept: "Debugging",
+        description: "A mysterious orange realm where things go wrong!",
+        briefing: `
+            <h3>🟠 DARK MATTER - Level 6: Debugging</h3>
+            <p><strong>Mission:</strong> Find and fix the bugs in this corrupted zone!</p>
+            <p><strong>Programming Concept - Debugging:</strong> Finding and fixing errors in code!</p>
+            <p><strong>Common Bugs:</strong></p>
+            <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+# Bug: Wrong operator
+score = score + 10  # Should be += 
+
+# Bug: Off-by-one error
+for i in range(1, 10):  # Misses index 0!
+
+# Bug: Typo
+prnt("Hello")  # Should be print()
+            </pre>
+            <p>Every programmer faces bugs! The key is to systematically find and fix them.</p>
+            <p><strong>Boss Challenge:</strong> Spot the bugs in the alien code and fix them to win!</p>
+        `,
+        background: "#281a0a",
+        enemyType: "bug",
+        bossName: "Bug Queen"
     },
     {
-        name: "Guardian",
-        icon: "✨",
-        speed: "Medium",
-        defense: "Very High",
-        firepower: "Medium",
-        description: "All-around protector."
+        id: 6,
+        name: "Alien Homeworld",
+        color: "#ffffff",
+        concept: "Mixed Challenge",
+        description: "The final frontier! All your skills will be tested!",
+        briefing: `
+            <h3>⚪ ALIEN HOMEWORLD - Level 7: Final Challenge</h3>
+            <p><strong>Mission:</strong> End the alien threat once and for all!</p>
+            <p><strong>All Concepts Combined:</strong> You'll need everything you've learned!</p>
+            <ul>
+                <li>✅ Sequencing - Correct order matters</li>
+                <li>✅ Loops - Efficient repetition</li>
+                <li>✅ Conditions - Smart decisions</li>
+                <li>✅ Variables - Track important data</li>
+                <li>✅ Functions - Reusable solutions</li>
+                <li>✅ Debugging - Fix errors quickly</li>
+            </ul>
+            <p>This is it! The ultimate test of your programming knowledge. Defeat the Alien Emperor and save the universe!</p>
+            <p><strong>Final Boss Challenge:</strong> A multi-stage puzzle combining all concepts!</p>
+        `,
+        background: "#282828",
+        enemyType: "elite",
+        bossName: "Alien Emperor"
     }
 ];
-
-// ============================================
-// SURVIVAL SCENARIOS (Harder - General Knowledge)
-// Options are shuffled automatically in game.js
-// Answer refers to the ORIGINAL correct option index before shuffle
-// ============================================
-
-const SURVIVAL_SCENARIOS = [
-    {
-        question: `You're alone on a beach surrounded by 7 unarmed attackers. You have one gun with 3 bullets. What's your smartest move?`,
-        options: [
-            "Shoot the three closest attackers to create fear",
-            "Fire warning shots in the air to intimidate them",
-            "Keep the gun hidden and try to negotiate or escape",
-            "Shoot randomly into the crowd and run"
-        ],
-        answer: 2,
-        explanation: "Using the gun escalates violence. Keeping it hidden while negotiating or finding escape gives better survival odds."
-    },
-    {
-        question: `You're lost in a desert with limited water. Your best strategy is:`,
-        options: [
-            "Walk during the day to find help faster",
-            "Stay in shade during day, travel at night",
-            "Drink all water immediately to hydrate fully",
-            "Run as fast as possible to conserve time"
-        ],
-        answer: 1,
-        explanation: "Traveling at night prevents heat exhaustion. Daytime movement causes dangerous dehydration."
-    },
-    {
-        question: `An earthquake hits while you're indoors on the 5th floor. You should:`,
-        options: [
-            "Immediately run for the stairs",
-            "Stand in a doorway",
-            "Drop, cover under sturdy furniture, hold on",
-            "Jump out the window"
-        ],
-        answer: 2,
-        explanation: "'Drop, Cover, Hold On' is the proven safety method. Doorways aren't safer, and running during shaking is dangerous."
-    },
-    {
-        question: `You encounter a bear in the woods. It hasn't noticed you yet. You should:`,
-        options: [
-            "Slowly back away without turning your back",
-            "Run away as fast as possible",
-            "Climb the nearest tree",
-            "Make loud noises to scare it"
-        ],
-        answer: 0,
-        explanation: "Running triggers chase instinct. Most bears can outrun humans. Slow retreat without sudden movements is safest."
-    },
-    {
-        question: `Your house is on fire and you're trapped upstairs. The staircase is blocked by flames. What do you do?`,
-        options: [
-            "Jump from the window immediately",
-            "Seal door cracks with cloth, signal from window, wait for rescue",
-            "Try to run through the flames",
-            "Hide in the closet"
-        ],
-        answer: 1,
-        explanation: "Sealing cracks prevents smoke entry. Signaling helps rescuers find you. Jumping risks serious injury."
-    },
-    {
-        question: `You're caught in a rip current while swimming. The correct action is:`,
-        options: [
-            "Swim directly back to shore against the current",
-            "Float and signal for help, swim parallel to shore",
-            "Dive underwater to escape the current",
-            "Panic and wave arms frantically"
-        ],
-        answer: 1,
-        explanation: "Rip currents pull you away from shore, not under. Swimming parallel escapes the current, then angle back to shore."
-    }
-];
-
-// ============================================
-// DECISION SCENARIOS (Harder - Moral/Ethical Choices)
-// Options are shuffled automatically in game.js
-// Answer refers to the ORIGINAL correct option index before shuffle
-// ============================================
-
-const DECISION_SCENARIOS = [
-    {
-        question: `A stranger offers you $10,000 to share confidential information about your team's security protocols. You're struggling financially. Do you:`,
-        options: [
-            "Accept - it's just information, no one gets hurt",
-            "Decline and report the attempt to security",
-            "Decline but don't report it - avoid drama",
-            "Negotiate for more money first"
-        ],
-        answer: 1,
-        explanation: "Security breaches endanger everyone. Reporting protects your team and may prevent future attempts."
-    },
-    {
-        question: `You discover a close friend has been stealing from the team supplies. They beg you not to tell anyone. You:`,
-        options: [
-            "Stay silent - loyalty to friends comes first",
-            "Confront them privately and demand they return everything",
-            "Report them immediately to leadership",
-            " anonymously leave a hint so they know you know"
-        ],
-        answer: 1,
-        explanation: "Direct confrontation gives them a chance to fix it while showing you care. If they refuse, then reporting becomes necessary."
-    },
-    {
-        question: `During a critical mission, you realize your leader made a mistake that could cost lives. Speaking up might undermine their authority. You:`,
-        options: [
-            "Stay quiet - chain of command matters most",
-            "Privately point out the issue respectfully",
-            "Publicly correct them in front of everyone",
-            "Wait until after the mission to mention it"
-        ],
-        answer: 1,
-        explanation: "Lives are at stake. A private, respectful approach preserves authority while addressing the critical issue."
-    },
-    {
-        question: `Someone you barely know confesses they're planning something dangerous. They trust you to keep it secret. You:`,
-        options: [
-            "Keep their secret - they trusted you",
-            "Try to talk them out of it, then report if they persist",
-            "Immediately report them without discussion",
-            "Tell mutual friends to handle it"
-        ],
-        answer: 1,
-        explanation: "Attempting intervention shows respect, but safety comes first. If they won't listen, authorities need to know."
-    },
-    {
-        question: `You witness someone being unfairly blamed for a mistake you actually made. No one else knows the truth. You:`,
-        options: [
-            "Stay silent - getting caught would ruin your reputation",
-            "Confess immediately and accept consequences",
-            "Leave subtle hints that point to the truth",
-            "Apologize privately to the blamed person only"
-        ],
-        answer: 1,
-        explanation: "Integrity means owning mistakes even when costly. Letting others take blame compounds the wrong."
-    },
-    {
-        question: `Your team must choose between saving equipment worth millions or rescuing an injured teammate. Time allows only one. You vote for:`,
-        options: [
-            "Save the equipment - it benefits everyone long-term",
-            "Rescue the teammate - human life is irreplaceable",
-            "Abstain - it's too difficult a choice",
-            "Let the leader decide without your input"
-        ],
-        answer: 1,
-        explanation: "Human life cannot be replaced or valued in monetary terms. Equipment can be rebuilt; people cannot."
-    }
-];
-
-// ============================================
-// CODING CHALLENGES (Easier - Beginner Friendly)
-// Simple concepts, clear answers
-// Options are shuffled automatically in game.js
-// Answer refers to the ORIGINAL correct option index before shuffle
-// ============================================
-
-const CODING_CHALLENGES = [
-    {
-        question: `What does this code do?\n\nconsole.log("Hello World")`,
-        hint: "Think about what appears on screen",
-        options: [
-            "Creates a new variable",
-            "Displays text on the screen",
-            "Deletes a file",
-            "Connects to internet"
-        ],
-        answer: 1
-    },
-    {
-        question: `Which symbol is used to make a comment in JavaScript?`,
-        hint: "It looks like two forward slashes",
-        options: [
-            "# comment",
-            "// comment",
-            "<!-- comment -->",
-            "/* comment */"
-        ],
-        answer: 1
-    },
-    {
-        question: `What value will x have after this code runs?\n\nlet x = 5;\nx = x + 3;`,
-        hint: "Start with 5, then add 3",
-        options: [
-            "5",
-            "3",
-            "8",
-            "x3"
-        ],
-        answer: 2
-    },
-    {
-        question: `Which of these creates a list (array) in JavaScript?`,
-        hint: "Square brackets are the clue",
-        options: [
-            "let items = (1, 2, 3)",
-            "let items = {1, 2, 3}",
-            "let items = [1, 2, 3]",
-            "let items = <1, 2, 3>"
-        ],
-        answer: 2
-    },
-    {
-        question: `What does this return?\n\n"5" + 2`,
-        hint: "One is text, one is a number",
-        options: [
-            "7",
-            "52",
-            "Error",
-            "5+2"
-        ],
-        answer: 1
-    },
-    {
-        question: `Which keyword creates a function in JavaScript?`,
-        hint: "It literally says what it does",
-        options: [
-            "create",
-            "def",
-            "function",
-            "make"
-        ],
-        answer: 2
-    }
-];
-
-// Export for use in game
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { CONFIG, AIRCRAFT, SURVIVAL_SCENARIOS, DECISION_SCENARIOS, CODING_CHALLENGES };
-}
