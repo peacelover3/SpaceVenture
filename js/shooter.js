@@ -131,6 +131,9 @@ class ShooterGame {
         this.isPlaying = true;
         this.isPaused = false;
         
+        // Ensure pause overlay is hidden
+        document.getElementById('pause-overlay').classList.add('hidden');
+        
         this.updateHUD();
         this.initStars();
         
@@ -473,7 +476,12 @@ class ShooterGame {
     
     togglePause() {
         this.isPaused = !this.isPaused;
-        document.getElementById('pause-overlay').classList.toggle('hidden', !this.isPaused);
+        const pauseOverlay = document.getElementById('pause-overlay');
+        if (this.isPaused) {
+            pauseOverlay.classList.remove('hidden');
+        } else {
+            pauseOverlay.classList.add('hidden');
+        }
     }
     
     resume() {
