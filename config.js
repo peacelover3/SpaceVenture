@@ -8,10 +8,10 @@ const GAME_CONFIG = {
     // RECIPIENT INFORMATION (Change for each person)
     // ============================================
     recipient: {
-        name: "Alex Johnson",           // Name of the person receiving this game
-        squadName: "Stellar Guardians",  // Name of their squad/team
-        rank: "Cadet",                   // Their rank in the squad
-        specialAbility: "Quick Thinking" // Their special ability/trait
+        name: "Aqsa Parveen",           // Name of the person receiving this game
+        squadName: "TacTeam",  // Name of their squad/team
+        rank: "General",                   // Their rank in the squad
+        specialAbility: "bat krna" // Their special ability/trait
     },
 
     // ============================================
