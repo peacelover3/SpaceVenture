@@ -70,12 +70,12 @@ const Game = {
             letter.innerHTML = `
                 <div style="border-bottom: 1px solid rgba(0,243,255,0.35); padding-bottom: 10px; margin-bottom: 12px; font-style: normal;">
                     <strong>TO:</strong> Commander ${name}<br>
-                    <strong>FROM:</strong> Sector Command — Eyes Only
+                    <strong>FROM:</strong> Sector Command - Eyes Only
                 </div>
-                <p>"The galaxy tests everyone, ${name} — but few are chosen to answer.</p>
+                <p>"The galaxy tests everyone, ${name} - but few are chosen to answer.</p>
                 <p>Every line of code you write, every call you make echoes across the stars. They will test your logic and your heart.</p>
                 <p>Prove that a sharp mind and a brave spirit are the most powerful weapons in the universe. Earth believes in you."</p>
-                <div style="margin-top: 12px; color: var(--secondary-color); font-weight: 700; font-style: normal;">— Your Commander</div>
+                <div style="margin-top: 12px; color: var(--secondary-color); font-weight: 700; font-style: normal;">- Your Commander</div>
             `;
         }
         this.hideAllScreens();
@@ -281,7 +281,7 @@ const Game = {
                 Total Score: ${this.totalScore}
             </p>
             <p style="font-size: 1.1rem; margin-top: 20px; font-style: italic;">
-                For ${name} — the stars bow to you, Commander. ✨
+                For ${name} - the stars bow to you, Commander. ✨
             </p>
         `;
         
@@ -317,7 +317,7 @@ const Game = {
         const name = cfg.commanderName || 'Commander';
         const body = document.getElementById('dispatch-body');
         if (body) {
-            body.innerHTML = `<h3 style="color: var(--primary-color); border-bottom: 1px solid rgba(0,243,255,0.35); padding-bottom: 10px; margin-bottom: 12px;">FINAL TRANSMISSION — FOR COMMANDER ${name.toUpperCase()}</h3>` + FINAL_MESSAGE;
+            body.innerHTML = `<h3 style="color: var(--primary-color); border-bottom: 1px solid rgba(0,243,255,0.35); padding-bottom: 10px; margin-bottom: 12px;">FINAL TRANSMISSION - FOR COMMANDER ${name.toUpperCase()}</h3>` + FINAL_MESSAGE;
         }
         this.hideAllScreens();
         document.getElementById('dispatch-screen').classList.remove('hidden');
@@ -339,7 +339,7 @@ const Game = {
                 return `
                     <div class="log-entry ${unlocked ? 'unlocked' : ''}">
                         <div class="log-planet" style="color: ${level.color}; font-weight: 700;">🌐 ${level.name.toUpperCase()}</div>
-                        <div class="log-secret">${unlocked ? '“' + body + '”' : '🔒 ENCRYPTED — conquer this planet to unlock'}</div>
+                        <div class="log-secret">${unlocked ? '“' + body + '”' : '🔒 ENCRYPTED - conquer this planet to unlock'}</div>
                     </div>
                 `;
             }).join('');

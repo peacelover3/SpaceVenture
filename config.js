@@ -312,24 +312,24 @@ const SHIP_SKINS = [
 ];
 
 // Final transmission shown after the full campaign is complete.
-// Rewrite this in your own voice — it's the big moment.
+// Rewrite this in your own voice - it's the big moment.
 const FINAL_MESSAGE = `
     <p>"Eight worlds. Eight battles. And one Commander who never once backed down.</p>
-    <p>I watched you fall, get up, crash again — and still reach for the next star. That is not luck. That is you.</p>
+    <p>I watched you fall, get up, crash again - and still reach for the next star. That is not luck. That is you.</p>
     <p>I made this for you. Every star here was placed by my own hands, hoping you'd be the one to sail through them. Your name is on every briefing and every victory screen because you're the reason any of it felt worth building.</p>
-    <p>When the universe feels big and dark, remember you've already conquered a dark corner of it — and you did it with a smile.</p>
+    <p>When the universe feels big and dark, remember you've already conquered a dark corner of it - and you did it with a smile.</p>
     <p>Yours, with all the galaxies still to come.</p>
-    <div style="margin-top: 12px; color: var(--secondary-color); font-weight: 700; font-style: normal;">— Your Commander</div>
+    <div style="margin-top: 12px; color: var(--secondary-color); font-weight: 700; font-style: normal;">- Your Commander</div>
 `;
 
 // One short surprise per planet, unlocked the first time a planet is conquered.
 const PLANET_SECRETS = [
     "Earth: You made Earth feel tiny by laughing at something I never expected you to laugh at. Please keep doing that.",
     "TrES-2b: They call this the darkest planet. Nothing looks dark when you're around.",
-    "Mars: Even a red planet turns gold when you show up. Drive, courage, and a stubborn streak — the exact recipe.",
+    "Mars: Even a red planet turns gold when you show up. Drive, courage, and a stubborn streak - the exact recipe.",
     "Uranus: Ice giant, cold jokes, warm heart. Somehow, that's the precise engineering of you.",
     "Saturn: Nothing is more beautiful than a ring around the thing you care about. This game is my ring.",
-    "Alpha Centauri A: For the record — in any binary system, you'd be the brighter star.",
+    "Alpha Centauri A: For the record - in any binary system, you'd be the brighter star.",
     "Kepler-16b: Two suns, and I still can't decide which one shines brighter than your smile.",
     "Draugr: If we can conquer an alien homeworld together, we can handle any Monday that comes."
 ];
