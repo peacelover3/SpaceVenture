@@ -1,4 +1,4 @@
-node_modules/
+Nothing should be ignored since the changes only include source/config files (.md, .js, .html, .css).node_modules/
 .next/
 dist/
 build/
