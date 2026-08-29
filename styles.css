@@ -5,400 +5,457 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    overflow: hidden;
-    background: #0a0a0f;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0a0a1a;
     color: #fff;
-    min-height: 100vh;
+    overflow: hidden;
+    touch-action: none;
 }
 
-/* Background Slideshow */
-.bg-slideshow {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -2;
+#game-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
 }
 
-.bg-slide {
+.screen {
+    display: none;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-size: cover;
-    background-position: center;
-    opacity: 0;
-    transition: opacity 1.5s ease-in-out;
-}
-
-.bg-slide.active {
-    opacity: 1;
-}
-
-.bg-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: -1;
-}
-
-/* Fallback gradient if no images */
-.bg-slide:not([style*="http"]) {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-}
-
-/* Set background images via JS */
-.bg-slide:nth-child(1) { background-image: url('assets/bg1.jpg'); }
-.bg-slide:nth-child(2) { background-image: url('assets/bg2.jpg'); }
-.bg-slide:nth-child(3) { background-image: url('assets/bg3.jpg'); }
-.bg-slide:nth-child(4) { background-image: url('assets/bg4.jpg'); }
-.bg-slide:nth-child(5) { background-image: url('assets/bg5.jpg'); }
-.bg-slide:nth-child(6) { background-image: url('assets/bg6.jpg'); }
-.bg-slide:nth-child(7) { background-image: url('assets/bg7.jpg'); }
-.bg-slide:nth-child(8) { background-image: url('assets/bg8.jpg'); }
-.bg-slide:nth-child(9) { background-image: url('assets/bg9.jpg'); }
-.bg-slide:nth-child(10) { background-image: url('assets/bg10.jpg'); }
-
-/* Game Container */
-.game-container {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     padding: 20px;
-}
-
-/* Screens */
-.screen {
-    display: none;
-    width: 100%;
-    max-width: 600px;
-    animation: fadeIn 0.3s ease;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
 }
 
 .screen.active {
-    display: block;
+    display: flex;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Content Box */
-.content-box {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 30px 25px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-/* Typography */
-.game-title {
-    font-size: 2rem;
+h1 {
+    font-size: 3rem;
     margin-bottom: 10px;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0 20px #4a9eff, 0 0 40px #4a9eff;
+    animation: glow 2s ease-in-out infinite alternate;
 }
 
-.squad-name {
-    font-size: 1.1rem;
-    color: #4fc3f7;
-    margin-bottom: 25px;
-}
-
-h2 {
-    font-size: 1.6rem;
-    margin-bottom: 15px;
-}
-
-h3 {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-    line-height: 1.5;
+@keyframes glow {
+    from { text-shadow: 0 0 20px #4a9eff, 0 0 40px #4a9eff; }
+    to { text-shadow: 0 0 30px #6abfff, 0 0 60px #6abfff; }
 }
 
 .subtitle {
+    font-size: 1.2rem;
     color: #aaa;
-    margin-bottom: 20px;
-    font-size: 0.95rem;
+    margin-bottom: 30px;
 }
 
-.briefing-text {
-    text-align: left;
-    line-height: 1.7;
-    margin-bottom: 25px;
-    font-size: 0.95rem;
-    max-height: 40vh;
-    overflow-y: auto;
-}
-
-/* Scenario Header */
-.scenario-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    font-size: 0.85rem;
-}
-
-.scenario-type {
-    background: rgba(79, 195, 247, 0.2);
-    padding: 5px 12px;
-    border-radius: 15px;
-    color: #4fc3f7;
-}
-
-.scenario-count {
-    color: #888;
-}
-
-/* Options */
-.options-container {
+.menu-options {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 15px;
+    margin-bottom: 30px;
 }
 
-.option-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 15px 20px;
-    color: #fff;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: left;
-    line-height: 1.4;
-}
-
-.option-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: #4fc3f7;
-    transform: scale(1.02);
-}
-
-.option-btn:active {
-    transform: scale(0.98);
-}
-
-.option-btn.correct {
-    background: rgba(76, 175, 80, 0.3);
-    border-color: #4caf50;
-}
-
-.option-btn.wrong {
-    background: rgba(244, 67, 54, 0.3);
-    border-color: #f44336;
-}
-
-/* Code Options */
-.code-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.code-option {
-    background: #1e1e2e;
-    border: 2px solid #333;
+.menu-btn {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, #4a9eff 0%, #2a5acc 100%);
+    border: none;
     border-radius: 10px;
-    padding: 15px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.85rem;
-    color: #e0e0e0;
+    color: white;
     cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: left;
+    transition: all 0.3s;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    min-width: 250px;
 }
 
-.code-option:hover {
-    border-color: #4fc3f7;
-    background: #252535;
+.menu-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(74, 158, 255, 0.6);
 }
 
-.code-option.correct {
-    background: rgba(76, 175, 80, 0.2);
-    border-color: #4caf50;
+.menu-btn.secondary {
+    background: linear-gradient(135deg, #666 0%, #444 100%);
 }
 
-.code-option.wrong {
-    background: rgba(244, 67, 54, 0.2);
-    border-color: #f44336;
+.menu-btn.secondary:hover {
+    box-shadow: 0 0 30px rgba(100, 100, 100, 0.6);
 }
 
-.hint {
-    background: rgba(255, 193, 7, 0.1);
-    border-left: 3px solid #ffc107;
-    padding: 10px 15px;
-    margin-bottom: 20px;
-    font-size: 0.85rem;
-    color: #ffc107;
-    text-align: left;
+.planet-status {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    max-width: 500px;
 }
 
-/* Aircraft Grid */
-.aircraft-grid {
+.planet-status h3 {
+    margin-bottom: 10px;
+    color: #4a9eff;
+}
+
+.planets-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.planet-item {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.planet-item.conquered {
+    background: rgba(74, 158, 255, 0.3);
+    border: 2px solid #4a9eff;
+}
+
+.planet-item.current {
+    background: rgba(255, 200, 0, 0.3);
+    border: 2px solid #ffc800;
+}
+
+.planet-item.lost {
+    background: rgba(255, 50, 50, 0.3);
+    border: 2px solid #ff3232;
+    opacity: 0.5;
+}
+
+.instructions-content {
+    max-width: 800px;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.instructions-content h3 {
+    color: #4a9eff;
+    margin: 20px 0 10px 0;
+}
+
+.instructions-content ul {
+    margin-left: 20px;
+    line-height: 1.8;
+}
+
+.instructions-content li {
+    margin-bottom: 8px;
+}
+
+#briefing-content {
+    max-width: 700px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px;
+    border-radius: 15px;
+    margin: 20px 0;
+    text-align: left;
+    line-height: 1.6;
+}
+
+.briefing-controls {
+    display: flex;
     gap: 15px;
     margin-top: 20px;
 }
 
-.aircraft-card {
-    background: rgba(255, 255, 255, 0.08);
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    border-radius: 15px;
-    padding: 20px 15px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+#game-screen {
+    padding: 0;
+    background: #000;
 }
 
-.aircraft-card:hover {
-    border-color: #4fc3f7;
-    background: rgba(255, 255, 255, 0.12);
-    transform: translateY(-3px);
+#hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
 }
 
-.aircraft-icon {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-
-.aircraft-name {
-    font-weight: bold;
-    margin-bottom: 8px;
-    font-size: 0.95rem;
-}
-
-.aircraft-stats {
-    font-size: 0.75rem;
-    color: #aaa;
-    line-height: 1.6;
-}
-
-/* Buttons */
-.btn-primary {
-    background: linear-gradient(135deg, #4fc3f7 0%, #2196f3 100%);
-    border: none;
+#health-bar {
+    width: 200px;
+    height: 25px;
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 12px;
-    padding: 15px 40px;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 600;
+    overflow: hidden;
+    position: relative;
+}
+
+#health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff3232 0%, #ffcc00 50%, #32ff32 100%);
+    width: 100%;
+    transition: width 0.3s;
+}
+
+#health-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-shadow: 0 0 3px #000;
+}
+
+#level-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 0.9rem;
+}
+
+#score-display {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffc800;
+}
+
+#game-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#boss-warning {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff3232;
+    text-shadow: 0 0 20px #ff3232;
+    animation: flash 0.5s ease-in-out infinite;
+    z-index: 50;
+}
+
+@keyframes flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+#pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 200;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#puzzle-container {
+    max-width: 700px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px;
+    border-radius: 15px;
+    margin: 20px 0;
+    min-height: 200px;
+}
+
+.drag-drop-container {
+    display: flex;
+    gap: 30px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.drag-source, .drop-zone {
+    flex: 1;
+    min-width: 200px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    min-height: 150px;
+}
+
+.draggable-item {
+    padding: 10px 15px;
+    margin: 5px 0;
+    background: linear-gradient(135deg, #4a9eff 0%, #2a5acc 100%);
+    border-radius: 8px;
+    cursor: grab;
+    user-select: none;
+}
+
+.draggable-item:active {
+    cursor: grabbing;
+}
+
+.drop-slot {
+    padding: 15px;
+    margin: 5px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed #666;
+    border-radius: 8px;
+    min-height: 50px;
+    transition: all 0.3s;
+}
+
+.drop-slot.hover {
+    border-color: #4a9eff;
+    background: rgba(74, 158, 255, 0.2);
+}
+
+.drop-slot.filled {
+    border-style: solid;
+    border-color: #32ff32;
+    background: rgba(50, 255, 50, 0.2);
+}
+
+.multiple-choice-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.choice-option {
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+    transition: all 0.3s;
+    text-align: left;
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(79, 195, 247, 0.4);
+.choice-option:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
-.btn-primary:active {
-    transform: translateY(0);
+.choice-option.selected {
+    border-color: #4a9eff;
+    background: rgba(74, 158, 255, 0.3);
 }
 
-/* Victory/Defeat */
-.victory h2 {
-    color: #4caf50;
+.feedback {
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 10px;
+    font-weight: bold;
+    display: none;
 }
 
-.defeat h2 {
-    color: #f44336;
+.feedback.correct {
+    display: block;
+    background: rgba(50, 255, 50, 0.3);
+    border: 2px solid #32ff32;
+    color: #32ff32;
 }
 
-#victory-message,
-#defeat-message {
-    margin-bottom: 25px;
+.feedback.incorrect {
+    display: block;
+    background: rgba(255, 50, 50, 0.3);
+    border: 2px solid #ff3232;
+    color: #ff3232;
+}
+
+#victory-message, #defeat-message {
+    max-width: 600px;
+    margin: 20px 0;
     line-height: 1.6;
-    font-size: 0.95rem;
 }
 
-/* Mobile Optimizations */
-@media (max-width: 480px) {
-    .game-container {
-        padding: 15px;
-    }
+#next-planet-preview, #retreat-info {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin: 20px 0;
+}
 
-    .content-box {
-        padding: 25px 20px;
-        border-radius: 15px;
-    }
+#final-stats, #complete-stats {
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    text-align: left;
+}
 
-    .game-title {
-        font-size: 1.6rem;
-    }
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
 
-    h2 {
-        font-size: 1.4rem;
-    }
+.stat-row:last-child {
+    border-bottom: none;
+}
 
-    h3 {
-        font-size: 1.1rem;
-    }
-
-    .aircraft-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    .aircraft-card {
-        padding: 15px 10px;
-    }
-
-    .aircraft-icon {
+@media (max-width: 768px) {
+    h1 {
         font-size: 2rem;
     }
-
-    .btn-primary {
-        width: 100%;
-        padding: 15px;
+    
+    .menu-btn {
+        min-width: 200px;
+        padding: 12px 30px;
+        font-size: 1rem;
     }
-
-    .option-btn {
-        padding: 12px 15px;
-        font-size: 0.9rem;
+    
+    #hud {
+        flex-wrap: wrap;
+        gap: 10px;
     }
-
-    .briefing-text {
-        max-height: 35vh;
-        font-size: 0.9rem;
+    
+    #health-bar {
+        width: 150px;
     }
-}
-
-/* Small phones */
-@media (max-width: 360px) {
-    .aircraft-grid {
-        grid-template-columns: 1fr;
+    
+    .drag-drop-container {
+        flex-direction: column;
     }
-
-    .game-title {
-        font-size: 1.4rem;
-    }
-}
-
-/* Landscape mode */
-@media (max-height: 500px) and (orientation: landscape) {
-    .game-container {
-        padding: 10px;
-    }
-
-    .content-box {
+    
+    .instructions-content {
         padding: 20px;
+        font-size: 0.9rem;
     }
+}
 
-    .briefing-text {
-        max-height: 50vh;
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .menu-btn {
+        min-width: 180px;
+        padding: 10px 20px;
+        font-size: 0.9rem;
     }
 }

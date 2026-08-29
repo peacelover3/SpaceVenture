@@ -1,301 +1,323 @@
-// Game State
-const game = {
-    state: {
-        currentScreen: 'start',
-        selectedAircraft: null,
-        scenarioIndex: 0,
-        codingIndex: 0,
-        score: 0,
-        totalQuestions: 0
-    },
-    
-    // Initialize game
+// Main Game Controller
+const Game = {
+    currentLevel: 0,
+    conqueredPlanets: [],
+    totalScore: 0,
+    attempts: 0,
+    shooter: null,
+
     init() {
-        this.setupBackgroundSlideshow();
-        this.showScreen('start-screen');
-        this.updateStartScreen();
+        // Initialize audio system
+        AudioSystem.init();
+        
+        // Create shooter instance
+        const canvas = document.getElementById('game-canvas');
+        this.shooter = new ShooterGame(canvas);
+        
+        // Load saved game
+        this.loadGame();
+        
+        // Setup event listeners
+        this.setupEventListeners();
+        
+        // Update planet status
+        this.updatePlanetStatus();
     },
-    
-    // Background slideshow
-    setupBackgroundSlideshow() {
-        const slides = document.querySelectorAll('.bg-slide');
-        let currentSlide = 0;
+
+    setupEventListeners() {
+        // Main menu buttons
+        document.getElementById('start-btn').addEventListener('click', () => {
+            this.currentLevel = 0;
+            this.showBriefing(0);
+        });
         
-        setInterval(() => {
-            slides[currentSlide].classList.remove('active');
-            currentSlide = (currentSlide + 1) % slides.length;
-            slides[currentSlide].classList.add('active');
-        }, 5000); // Change every 5 seconds
-    },
-    
-    // Update start screen with config
-    updateStartScreen() {
-        const squadEl = document.getElementById('start-squad');
-        if (squadEl && CONFIG) {
-            squadEl.textContent = `${CONFIG.recipient.rank} ${CONFIG.recipient.name} - ${CONFIG.recipient.squadName} Squad`;
-        }
-    },
-    
-    // Show specific screen
-    showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        const screen = document.getElementById(screenId);
-        if (screen) screen.classList.add('active');
-        this.state.currentScreen = screenId;
-    },
-    
-    // Start game
-    start() {
-        this.state.scenarioIndex = 0;
-        this.state.codingIndex = 0;
-        this.state.score = 0;
-        this.state.totalQuestions = SURVIVAL_SCENARIOS.length + DECISION_SCENARIOS.length + CODING_CHALLENGES.length;
-        this.showBriefing();
-    },
-    
-    // Show briefing
-    showBriefing() {
-        const briefingEl = document.getElementById('briefing-content');
-        if (briefingEl && CONFIG) {
-            briefingEl.innerHTML = `
-                <p><strong>${CONFIG.story.briefingOfficer}:</strong> "${CONFIG.recipient.name}, report in!"</p>
-                <br>
-                <p>The ${CONFIG.story.enemyName} are preparing to invade. We've detected their fleet approaching ${CONFIG.homePlanet}.</p>
-                <br>
-                <p>Your mission: Navigate through hostile space, make critical decisions, and prove you have what it takes to defend us.</p>
-                <br>
-                <p>Remember - failure means capture. The ${CONFIG.story.enemyName} don't take prisoners... they take slaves.</p>
-                <br>
-                <p><em>"Your ${CONFIG.recipient.specialAbility} will be your greatest asset. Good luck, ${CONFIG.recipient.rank}."</em></p>
-            `;
-        }
-        this.showScreen('briefing-screen');
-    },
-    
-    // Go to aircraft selection
-    toAircraftSelect() {
-        const aircraftList = document.getElementById('aircraft-list');
-        if (aircraftList) {
-            aircraftList.innerHTML = AIRCRAFT.map((aircraft, index) => `
-                <div class="aircraft-card" onclick="game.selectAircraft(${index})">
-                    <div class="aircraft-icon">${aircraft.icon}</div>
-                    <div class="aircraft-name">${aircraft.name}</div>
-                    <div class="aircraft-stats">
-                        Speed: ${aircraft.speed}<br>
-                        Defense: ${aircraft.defense}<br>
-                        Firepower: ${aircraft.firepower}
-                    </div>
-                </div>
-            `).join('');
-        }
-        this.showScreen('aircraft-screen');
-    },
-    
-    // Select aircraft
-    selectAircraft(index) {
-        this.state.selectedAircraft = AIRCRAFT[index];
-        this.startScenarios();
-    },
-    
-    // Start scenarios
-    startScenarios() {
-        this.state.scenarioIndex = 0;
-        this.state.phase = 'survival'; // survival, decision, coding
-        this.loadScenario();
-    },
-    
-    // Load current scenario
-    loadScenario() {
-        let scenario;
-        let typeLabel;
-        
-        if (this.state.phase === 'survival') {
-            scenario = SURVIVAL_SCENARIOS[this.state.scenarioIndex];
-            typeLabel = 'Survival Challenge';
-        } else if (this.state.phase === 'decision') {
-            scenario = DECISION_SCENARIOS[this.state.scenarioIndex];
-            typeLabel = 'Critical Decision';
-        } else {
-            scenario = CODING_CHALLENGES[this.state.codingIndex];
-            typeLabel = 'Systems Check';
-        }
-        
-        if (!scenario) {
-            this.nextPhase();
-            return;
-        }
-        
-        // Shuffle options and track correct answer
-        const shuffledData = this.shuffleOptions(scenario.options, scenario.answer);
-        
-        // Update UI
-        const typeEl = document.getElementById('scenario-type');
-        const countEl = document.getElementById('scenario-count');
-        const questionEl = document.getElementById(this.state.phase === 'coding' ? 'coding-question' : 'scenario-question');
-        const optionsContainer = document.getElementById(this.state.phase === 'coding' ? 'code-options' : 'options-list');
-        const hintEl = document.getElementById('coding-hint');
-        
-        if (typeEl) typeEl.textContent = typeLabel;
-        if (countEl) countEl.textContent = `${this.state.scenarioIndex + 1}/${SURVIVAL_SCENARIOS.length}`;
-        
-        if (questionEl) questionEl.textContent = scenario.question;
-        
-        if (hintEl && scenario.hint) {
-            hintEl.textContent = `Hint: ${scenario.hint}`;
-            hintEl.style.display = 'block';
-        } else if (hintEl) {
-            hintEl.style.display = 'none';
-        }
-        
-        if (optionsContainer) {
-            const className = this.state.phase === 'coding' ? 'code-option' : 'option-btn';
-            optionsContainer.innerHTML = shuffledData.options.map((opt, idx) => `
-                <div class="${className}" onclick="game.checkAnswer(${idx})">${opt}</div>
-            `).join('');
-            // Store the correct index for this shuffled scenario
-            this.currentCorrectAnswer = shuffledData.correctIndex;
-        }
-        
-        if (this.state.phase === 'coding') {
-            this.showScreen('coding-screen');
-        } else {
-            this.showScreen('scenario-screen');
-        }
-    },
-    
-    // Shuffle options and return new array with correct index
-    shuffleOptions(options, originalCorrectIndex) {
-        // Create array of objects with original index
-        const indexed = options.map((opt, idx) => ({ text: opt, originalIdx: idx }));
-        
-        // Fisher-Yates shuffle
-        for (let i = indexed.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
-        }
-        
-        // Find new position of correct answer
-        const newCorrectIndex = indexed.findIndex(item => item.originalIdx === originalCorrectIndex);
-        
-        return {
-            options: indexed.map(item => item.text),
-            correctIndex: newCorrectIndex
-        };
-    },
-    
-    // Check answer
-    checkAnswer(selectedIndex) {
-        const correctIndex = this.currentCorrectAnswer;
-        
-        const optionsContainer = document.getElementById(this.state.phase === 'coding' ? 'code-options' : 'options-list');
-        const buttons = optionsContainer.querySelectorAll('.option-btn, .code-option');
-        
-        // Mark correct/wrong
-        buttons.forEach((btn, idx) => {
-            if (idx === correctIndex) {
-                btn.classList.add('correct');
-            } else if (idx === selectedIndex && idx !== correctIndex) {
-                btn.classList.add('wrong');
+        document.getElementById('continue-btn').addEventListener('click', () => {
+            if (this.conqueredPlanets.length > 0) {
+                this.currentLevel = this.conqueredPlanets.length;
+                this.showBriefing(this.currentLevel);
             }
         });
         
-        // Disable further clicks
-        buttons.forEach(btn => btn.style.pointerEvents = 'none');
+        document.getElementById('instructions-btn').addEventListener('click', () => {
+            this.showScreen('instructions-screen');
+        });
         
-        // Track score
-        if (selectedIndex === correctIndex) {
-            this.state.score++;
-        }
+        document.getElementById('back-to-menu').addEventListener('click', () => {
+            this.showScreen('main-menu');
+            this.updatePlanetStatus();
+        });
         
-        // Move to next after delay
-        setTimeout(() => {
-            if (this.state.phase === 'coding') {
-                this.state.codingIndex++;
+        // Briefing buttons
+        document.getElementById('start-level-btn').addEventListener('click', () => {
+            this.startLevel(this.currentLevel);
+        });
+        
+        document.getElementById('back-from-briefing').addEventListener('click', () => {
+            this.showScreen('main-menu');
+        });
+        
+        // Puzzle buttons
+        document.getElementById('submit-puzzle').addEventListener('click', () => {
+            if (PuzzleSystem.checkAnswer()) {
+                setTimeout(() => {
+                    this.handleLevelWin();
+                }, 1500);
+            }
+        });
+        
+        document.getElementById('hint-btn').addEventListener('click', () => {
+            PuzzleSystem.showHint();
+        });
+        
+        // Victory buttons
+        document.getElementById('next-level-btn').addEventListener('click', () => {
+            if (this.currentLevel < LEVELS.length - 1) {
+                this.currentLevel++;
+                this.showBriefing(this.currentLevel);
             } else {
-                this.state.scenarioIndex++;
+                this.showVictoryComplete();
             }
-            
-            // Check if phase complete
-            if (this.state.phase === 'survival' && this.state.scenarioIndex >= SURVIVAL_SCENARIOS.length) {
-                this.state.phase = 'decision';
-                this.state.scenarioIndex = 0;
-            } else if (this.state.phase === 'decision' && this.state.scenarioIndex >= DECISION_SCENARIOS.length) {
-                this.state.phase = 'coding';
-                this.state.codingIndex = 0;
-            }
-            
-            this.loadScenario();
-        }, 1200);
-    },
-    
-    // Next phase or end
-    nextPhase() {
-        if (this.state.phase === 'coding' && this.state.codingIndex >= CODING_CHALLENGES.length) {
-            this.endGame();
-        } else {
-            this.loadScenario();
-        }
-    },
-    
-    // End game
-    endGame() {
-        const percentage = (this.state.score / this.state.totalQuestions) * 100;
+        });
         
-        if (percentage >= 60) {
-            this.showVictory(percentage);
-        } else {
-            this.showDefeat(percentage);
-        }
+        document.getElementById('celebrate-btn').addEventListener('click', () => {
+            AudioSystem.playVictory();
+            this.createCelebration();
+        });
+        
+        // Defeat buttons
+        document.getElementById('retry-level-btn').addEventListener('click', () => {
+            this.startLevel(this.currentLevel);
+        });
+        
+        document.getElementById('retreat-btn').addEventListener('click', () => {
+            this.handleRetreat();
+        });
+        
+        // Pause buttons
+        document.getElementById('resume-btn').addEventListener('click', () => {
+            this.shooter.resume();
+        });
+        
+        document.getElementById('quit-to-menu').addEventListener('click', () => {
+            this.shooter.isPlaying = false;
+            this.showScreen('main-menu');
+            this.updatePlanetStatus();
+        });
+        
+        // Game over buttons
+        document.getElementById('restart-game-btn').addEventListener('click', () => {
+            this.conqueredPlanets = [];
+            this.totalScore = 0;
+            this.currentLevel = 0;
+            this.saveGame();
+            this.showScreen('main-menu');
+            this.updatePlanetStatus();
+        });
+        
+        // Victory complete button
+        document.getElementById('play-again-btn').addEventListener('click', () => {
+            this.conqueredPlanets = [];
+            this.totalScore = 0;
+            this.currentLevel = 0;
+            this.saveGame();
+            this.showScreen('main-menu');
+            this.updatePlanetStatus();
+        });
     },
-    
-    // Show victory
-    showVictory(percentage) {
-        const msgEl = document.getElementById('victory-message');
-        if (msgEl && CONFIG) {
-            msgEl.innerHTML = `
-                <p>Excellent work, ${CONFIG.recipient.rank} ${CONFIG.recipient.name}!</p>
-                <br>
-                <p>You successfully defended against the ${CONFIG.story.enemyName} invasion with ${(percentage).toFixed(0)}% accuracy.</p>
-                <br>
-                <p>Your ${CONFIG.recipient.squadName} Squad is proud. ${CONFIG.homePlanet} is safe... for now.</p>
-                <br>
-                <p><strong>Final Score:</strong> ${this.state.score}/${this.state.totalQuestions}</p>
+
+    showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('active');
+        });
+        document.getElementById(screenId).classList.add('active');
+    },
+
+    showBriefing(levelId) {
+        const level = LEVELS[levelId];
+        document.getElementById('briefing-title').textContent = `${level.name} - ${level.concept}`;
+        document.getElementById('briefing-content').innerHTML = level.briefing;
+        this.showScreen('briefing-screen');
+    },
+
+    startLevel(levelId) {
+        this.currentLevel = levelId;
+        this.showScreen('game-screen');
+        this.shooter.startLevel(levelId);
+    },
+
+    showPuzzleScreen() {
+        const puzzle = PuzzleSystem.generatePuzzle(this.currentLevel);
+        document.getElementById('puzzle-title').textContent = puzzle.title;
+        document.getElementById('puzzle-instruction').textContent = puzzle.instruction;
+        PuzzleSystem.renderPuzzle(puzzle);
+        this.showScreen('puzzle-screen');
+    },
+
+    handleLevelWin() {
+        AudioSystem.playVictory();
+        this.totalScore += this.shooter.score + CONFIG.scorePerPuzzle;
+        
+        if (!this.conqueredPlanets.includes(this.currentLevel)) {
+            this.conqueredPlanets.push(this.currentLevel);
+        }
+        
+        this.saveGame();
+        
+        const level = LEVELS[this.currentLevel];
+        document.getElementById('victory-message').textContent = 
+            `You've defended ${level.name} and learned about ${level.concept}!`;
+        
+        if (this.currentLevel < LEVELS.length - 1) {
+            const nextLevel = LEVELS[this.currentLevel + 1];
+            document.getElementById('next-planet-preview').innerHTML = `
+                <h3>Next Target: ${nextLevel.name}</h3>
+                <p>Concept: ${nextLevel.concept}</p>
+                <p>${nextLevel.description}</p>
             `;
         }
+        
         this.showScreen('victory-screen');
+        this.updatePlanetStatus();
     },
-    
-    // Show defeat
-    showDefeat(percentage) {
-        const msgEl = document.getElementById('defeat-message');
-        if (msgEl && CONFIG) {
-            msgEl.innerHTML = `
-                <p>Mission failed, ${CONFIG.recipient.rank} ${CONFIG.recipient.name}.</p>
-                <br>
-                <p>The ${CONFIG.story.enemyName} have captured you. You're being taken back to their homeworld as a slave.</p>
-                <br>
-                <p>Your ${CONFIG.recipient.squadName} Squad mourns your loss. ${CONFIG.homePlanet}'s fate hangs in the balance...</p>
-                <br>
-                <p><strong>Score:</strong> ${this.state.score}/${this.state.totalQuestions} (${(percentage).toFixed(0)}%)</p>
-                <br>
-                <p><em>You need at least 60% to succeed. Try again!</em></p>
+
+    handleLevelLoss() {
+        const level = LEVELS[this.currentLevel];
+        document.getElementById('defeat-message').textContent = 
+            `The aliens have overwhelmed ${level.name}!`;
+        
+        if (this.currentLevel === 0) {
+            // Lost Earth - Game Over
+            document.getElementById('defeat-title').textContent = 'EARTH HAS FALLEN!';
+            document.getElementById('retreat-info').innerHTML = `
+                <p>All hope is lost. Humanity is enslaved.</p>
+                <p>The alien empire rules the universe.</p>
             `;
+            document.getElementById('retry-level-btn').style.display = 'inline-block';
+            document.getElementById('retreat-btn').style.display = 'none';
+        } else {
+            // Retreat to previous planet
+            const previousLevel = Math.max(0, this.currentLevel - 1);
+            document.getElementById('retreat-info').innerHTML = `
+                <p>Retreating to ${LEVELS[previousLevel].name}...</p>
+                <p>Prepare for the alien assault there!</p>
+            `;
+            document.getElementById('retry-level-btn').style.display = 'inline-block';
+            document.getElementById('retreat-btn').style.display = 'inline-block';
         }
+        
         this.showScreen('defeat-screen');
     },
-    
-    // Restart game
-    restart() {
-        this.state.scenarioIndex = 0;
-        this.state.codingIndex = 0;
-        this.state.score = 0;
-        this.state.selectedAircraft = null;
-        this.showScreen('start-screen');
-        this.updateStartScreen();
+
+    handleRetreat() {
+        if (this.currentLevel > 0) {
+            this.currentLevel = Math.max(0, this.currentLevel - 1);
+            
+            // Remove conquered planets beyond current level
+            this.conqueredPlanets = this.conqueredPlanets.filter(p => p <= this.currentLevel);
+            
+            this.saveGame();
+            this.showBriefing(this.currentLevel);
+            this.updatePlanetStatus();
+        }
+    },
+
+    showVictoryComplete() {
+        AudioSystem.playVictory();
+        document.getElementById('complete-stats').innerHTML = `
+            <div class="stat-row">
+                <span>Planets Conquered:</span>
+                <span>${this.conqueredPlanets.length}/${LEVELS.length}</span>
+            </div>
+            <div class="stat-row">
+                <span>Total Score:</span>
+                <span>${this.totalScore}</span>
+            </div>
+            <div class="stat-row">
+                <span>Programming Concepts Mastered:</span>
+                <span>All 7!</span>
+            </div>
+        `;
+        this.showScreen('victory-complete-screen');
+        this.conqueredPlanets = [];
+        this.saveGame();
+    },
+
+    createCelebration() {
+        // Simple celebration effect
+        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                console.log(`🎉 Celebration particle ${i} in ${color}`);
+            }, i * 100);
+        }
+    },
+
+    updatePlanetStatus() {
+        const container = document.getElementById('planet-status');
+        const continueBtn = document.getElementById('continue-btn');
+        
+        if (this.conqueredPlanets.length === 0) {
+            container.innerHTML = '<h3>No planets conquered yet</h3><p>Start your mission to defend Earth!</p>';
+            continueBtn.style.display = 'none';
+            return;
+        }
+        
+        let html = '<h3>Conquered Planets</h3><div class="planets-grid">';
+        
+        LEVELS.forEach((level, index) => {
+            let statusClass = '';
+            let statusIcon = '⚪';
+            
+            if (this.conqueredPlanets.includes(index)) {
+                statusClass = 'conquered';
+                statusIcon = '✅';
+            } else if (index === this.conqueredPlanets.length) {
+                statusClass = 'current';
+                statusIcon = '🎯';
+            } else if (index < this.conqueredPlanets.length) {
+                statusClass = 'lost';
+                statusIcon = '❌';
+            }
+            
+            html += `
+                <div class="planet-item ${statusClass}">
+                    ${statusIcon} ${level.name}
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+        
+        if (this.conqueredPlanets.length > 0 && this.conqueredPlanets.length < LEVELS.length) {
+            continueBtn.style.display = 'inline-block';
+        } else {
+            continueBtn.style.display = 'none';
+        }
+    },
+
+    saveGame() {
+        const saveData = {
+            conqueredPlanets: this.conqueredPlanets,
+            totalScore: this.totalScore,
+            currentLevel: this.currentLevel
+        };
+        localStorage.setItem(CONFIG.saveKey, JSON.stringify(saveData));
+    },
+
+    loadGame() {
+        const saveData = localStorage.getItem(CONFIG.saveKey);
+        if (saveData) {
+            const data = JSON.parse(saveData);
+            this.conqueredPlanets = data.conqueredPlanets || [];
+            this.totalScore = data.totalScore || 0;
+            this.currentLevel = data.currentLevel || 0;
+        }
     }
 };
 
-// Initialize when DOM ready
+// Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    game.init();
+    Game.init();
 });
