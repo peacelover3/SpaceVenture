@@ -33,6 +33,7 @@
             overflow: hidden;
             height: 100vh;
             width: 100vw;
+            overscroll-behavior: none;
         }
 
         /* Canvas Layer */
@@ -44,6 +45,8 @@
             height: 100%;
             z-index: 1;
             cursor: crosshair;
+            touch-action: none;
+            -webkit-touch-callout: none;
         }
 
         /* UI Layer */
@@ -69,17 +72,62 @@
         .hud-top {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             text-shadow: 0 0 5px var(--primary-color);
         }
 
+        /* Compact top bar - keeps the playfield visible */
+        #hud {
+            padding: 10px 16px;
+        }
+
+        #hud-stats {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 2px 10px;
+            text-align: right;
+        }
+
+        #score-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--primary-color);
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
+        }
+
+        #combo-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: #ffae42;
+            min-height: 1em;
+            text-shadow: 0 0 8px rgba(255, 174, 66, 0.6);
+        }
+
+        #planet-tag {
+            position: absolute;
+            left: 16px;
+            bottom: 14px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: var(--secondary-color);
+            text-shadow: 0 0 6px rgba(188, 19, 254, 0.5);
+            opacity: 0.85;
+            pointer-events: none;
+        }
+
         .health-bar-container {
-            width: 200px;
-            height: 20px;
+            width: 178px;
+            height: 14px;
             background: rgba(0,0,0,0.5);
             border: 2px solid var(--primary-color);
             border-radius: 4px;
             overflow: hidden;
+            position: relative;
         }
 
         .health-fill {
@@ -91,28 +139,29 @@
 
         .wave-progress-container {
             position: absolute;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            max-width: 600px;
-            text-align: center;
+            top: 56px;
+            left: 0;
+            transform: none;
+            width: 100%;
+            max-width: none;
+            padding: 0 16px;
+            text-align: left;
         }
 
         .wave-label {
             font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
+            font-size: 10px;
             color: var(--primary-color);
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             letter-spacing: 2px;
             text-transform: uppercase;
         }
 
         .progress-track {
             width: 100%;
-            height: 8px;
+            height: 4px;
             background: rgba(255,255,255,0.1);
-            border-radius: 4px;
+            border-radius: 2px;
             overflow: hidden;
             border: 1px solid rgba(0, 243, 255, 0.3);
         }
@@ -123,6 +172,51 @@
             width: 0%;
             transition: width 0.2s linear;
             box-shadow: 0 0 10px var(--secondary-color);
+        }
+
+        @media (max-width: 600px) {
+            #hud { padding: 8px 10px; }
+            .health-bar-container { width: 104px; height: 11px; }
+            #health-text { font-size: 0.62rem; }
+            #score-display { font-size: 0.82rem; }
+            #combo-display { font-size: 0.68rem; }
+            #planet-tag { font-size: 0.62rem; letter-spacing: 1px; left: 10px; bottom: 10px; }
+            .wave-progress-container { top: 46px; padding: 0 10px; }
+            .wave-label { font-size: 9px; }
+        }
+
+        #health-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 5px #000;
+            letter-spacing: 1px;
+        }
+
+        #boss-warning {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            color: var(--danger-color);
+            text-shadow: 0 0 15px rgba(255, 42, 42, 0.8);
+            animation: boss-flash 0.5s ease-in-out infinite;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        @keyframes boss-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         /* Screens */
@@ -136,11 +230,20 @@
             backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             z-index: 20;
             pointer-events: auto;
             transition: opacity 0.3s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 40px 20px;
+        }
+
+        /* Center content when it fits, allow scrolling when it doesn't */
+        .screen > * {
+            margin-top: auto;
+            margin-bottom: auto;
         }
 
         .hidden {
@@ -194,6 +297,16 @@
             margin-bottom: 30px;
             max-width: 700px;
             font-style: italic;
+        }
+
+        #intro-letter p {
+            text-align: left;
+            margin-bottom: 14px;
+        }
+
+        #dispatch-body p {
+            text-align: left;
+            margin-bottom: 14px;
         }
 
         .btn-group {
@@ -262,6 +375,8 @@
             transform: translate(-50%, -50%) scale(0.9);
             width: 90%;
             max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
             background: var(--panel-bg);
             border: 2px solid var(--secondary-color);
             border-radius: 15px;
@@ -356,6 +471,174 @@
             .btn-group { flex-direction: column; width: 100%; }
             button { width: 100%; }
         }
+
+        /* Ship selector */
+        .ship-selector { margin-bottom: 26px; text-align: center; }
+        .ship-selector h3 { color: var(--primary-color); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 12px; }
+        #ship-options { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .ship-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            width: 132px !important;
+            box-shadow: none !important;
+        }
+        .ship-option::before { display: none; }
+        .ship-option:hover { background: rgba(0,243,255,0.08); border-color: var(--primary-color); transform: none; }
+        .ship-option.selected { border-color: var(--secondary-color); box-shadow: 0 0 14px rgba(188,19,254,0.5) !important; background: rgba(188,19,254,0.12); }
+        .ship-name { font-family: 'Orbitron', sans-serif; font-size: 0.6rem; letter-spacing: 1px; color: #ccc; }
+        .ship-option.selected .ship-name { color: #fff; }
+        .ship-preview canvas { display: block; margin: 0 auto; }
+
+        /* Toast notifications (achievements) */
+        #toast {
+            position: absolute;
+            top: 18%;
+            left: 50%;
+            transform: translate(-50%, -20px);
+            background: var(--panel-bg);
+            border: 2px solid var(--secondary-color);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            padding: 12px 22px;
+            border-radius: 30px;
+            z-index: 60;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 0 20px rgba(188,19,254,0.4);
+            text-align: center;
+            max-width: 90vw;
+        }
+        #toast.shown { opacity: 1; transform: translate(-50%, 0); }
+
+        /* Wave / boss callouts */
+        #callout-display {
+            position: absolute;
+            top: 32%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.6);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            text-align: center;
+            color: var(--primary-color);
+            text-shadow: 0 0 25px rgba(0,243,255,0.8);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 8;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            text-transform: uppercase;
+        }
+        #callout-display.shown { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        /* Bomb button */
+        #bomb-btn {
+            position: absolute;
+            right: 18px;
+            bottom: 64px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            padding: 0;
+            border: 2px solid #ffae42;
+            color: #ffae42;
+            border-radius: 50%;
+            width: 62px;
+            height: 62px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 15;
+            box-shadow: 0 0 15px rgba(255,174,66,0.4);
+            line-height: 1;
+        }
+        #bomb-btn .bomb-emoji { font-size: 1.3rem; }
+        #bomb-btn .bomb-ammo { font-size: 0.75rem; }
+        #bomb-btn.unavailable { opacity: 0.35; border-color: #666; color: #666; box-shadow: none; }
+
+        #shield-indicator { font-size: 1.05rem; min-height: 1em; text-align: right; text-shadow: 0 0 8px rgba(61,214,255,0.8); }
+
+        /* Mission log */
+        .log-tabs { display: flex; gap: 10px; margin-bottom: 22px; }
+        .log-tab {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            padding: 8px 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            color: #ccc;
+            width: auto !important;
+            box-shadow: none;
+        }
+        .log-tab:hover { border-color: var(--primary-color); transform: none; background: rgba(0,243,255,0.08); }
+        .log-entry {
+            max-width: 620px;
+            margin-bottom: 12px;
+            background: rgba(0,20,40,0.6);
+            border-left: 3px solid var(--primary-color);
+            padding: 12px 16px;
+            text-align: left;
+            border-radius: 0 8px 8px 0;
+        }
+        .log-entry.unlocked { border-left-color: var(--success-color); background: rgba(0,255,157,0.06); }
+        .log-planet { font-family: 'Orbitron', sans-serif; font-size: 0.92rem; letter-spacing: 2px; margin-bottom: 4px; }
+        .log-secret { font-size: 1.05rem; color: #bbb; font-style: italic; margin: 0; text-align: left; }
+        #achievement-log-list { display: none; }
+
+        /* Certificate */
+        #cert-paper {
+            background: linear-gradient(180deg, #fdf6e3, #f3e6bd);
+            color: #1a1a1a;
+            width: 100%;
+            max-width: 640px;
+            border: 3px double #8a6d3b;
+            border-radius: 12px;
+            padding: 34px 30px;
+            text-align: center;
+            font-family: Georgia, 'Times New Roman', serif;
+            box-shadow: 0 0 40px rgba(255,215,130,0.25);
+        }
+        #cert-paper h1 { font-size: 1.9rem; color: #8a6d3b; -webkit-text-fill-color: #8a6d3b; font-family: Georgia, 'Times New Roman', serif; letter-spacing: 3px; margin: 6px 0 4px; font-weight: 700; filter: none; text-transform: uppercase; }
+        #cert-paper h2 { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05rem; letter-spacing: 5px; color: #6b4f1d; text-transform: uppercase; }
+        #cert-paper p { font-size: 1.05rem; color: #333; margin-bottom: 10px; text-align: center; }
+        #cert-paper .cert-name { font-size: 1.7rem; color: #6b1d0e; letter-spacing: 4px; font-weight: bold; margin: 8px 0; }
+        #cert-paper .cert-small { font-size: 0.92rem; color: #555; }
+        .cert-divider { border-top: 1px solid #c9a96a; margin: 14px auto; width: 80%; }
+        #cert-signature { font-family: 'Segoe Script', 'Comic Sans MS', cursive; font-size: 1.5rem; color: #6b4f1d; }
+        #cert-screen .btn-group { margin-top: 24px; }
+        @media (max-width: 600px) {
+            #bomb-btn { right: 12px; bottom: 52px; width: 54px; height: 54px; font-size: 0.9rem; }
+            #bomb-btn .bomb-emoji { font-size: 1.1rem; }
+            #callout-display { font-size: 1.3rem; }
+        }
+
+        /* Print: only the certificate */
+        @media print {
+            body * { visibility: hidden; }
+            #cert-screen, #cert-screen * { visibility: visible; }
+            #cert-screen {
+                position: absolute;
+                inset: 0 0 auto 0;
+                background: #fff !important;
+                overflow: visible;
+                padding: 10px;
+                backdrop-filter: none;
+            }
+            #cert-screen .btn-group { display: none; }
+            #cert-screen #cert-paper { box-shadow: none; border-color: #8a6d3b; }
+        }
     </style>
 </head>
 <body>
@@ -365,33 +648,62 @@
         <div class="hud-top" id="hud">
             <div class="health-bar-container">
                 <div class="health-fill" id="player-health"></div>
+                <div id="health-text">HP: 100%</div>
             </div>
-            <div style="text-align: right;">
-                <div id="score-display" style="font-family: 'Orbitron'; font-size: 1.2rem;">SCORE: 0</div>
-                <div id="planet-display" style="color: var(--secondary-color); font-size: 0.9rem;">TARGET: EARTH</div>
+            <div id="hud-stats">
+                <div id="score-display">SCORE: 0</div>
+                <div id="combo-display"></div>
+                <div id="shield-indicator"></div>
             </div>
         </div>
-        
+
+        <div id="planet-tag"><span id="planet-display">TARGET: EARTH</span></div>
+
         <div class="wave-progress-container interactive" id="wave-progress">
             <div class="wave-label">ENEMY WAVE PROGRESS</div>
             <div class="progress-track">
                 <div class="progress-fill" id="wave-fill"></div>
             </div>
         </div>
+
+        <div id="boss-warning" class="hidden">⚠ BOSS APPROACHING</div>
+
+        <div id="callout-display"></div>
+
+        <button id="bomb-btn" class="interactive unavailable" onclick="Game.useBomb()">
+            <span class="bomb-emoji">💣</span>
+            <span class="bomb-ammo" id="bomb-count">1</span>
+        </button>
+
+        <div id="toast"></div>
     </div>
 
     <!-- Main Menu -->
     <div id="main-menu" class="screen interactive">
         <h1>CODE DEFENDER</h1>
-        <p>Galactic Protocol Initiated</p>
+        <p style="letter-spacing: 3px; color: var(--primary-color);">A mission waiting for you, Commander</p>
         <div class="story-text" id="intro-story">
             Welcome, Commander <span id="commander-name" class="highlight">Ariba Zaher</span>. 
             The alien armada approaches. Your squad <span id="squad-name" class="highlight">Warbringers</span> is ready.<br>
             Defend Earth, then take the fight to their homeworld with your ship <span id="ship-name" class="highlight">Urran Khatola</span>.
         </div>
+        <div class="ship-selector">
+            <h3>SELECT YOUR SHIP</h3>
+            <div id="ship-options"></div>
+        </div>
         <div class="btn-group">
             <button onclick="Game.startCampaign()">START CAMPAIGN</button>
-            <button class="secondary" onclick="Config.showSettings()">SETTINGS</button>
+            <button class="secondary" onclick="Game.showLog()">MISSION LOG</button>
+            <button class="secondary" id="settings-btn" onclick="Game.toggleSound()">SETTINGS</button>
+        </div>
+    </div>
+
+    <!-- Mission Directive (personalized letter) -->
+    <div id="intro-screen" class="screen interactive hidden">
+        <h2 style="color: var(--primary-color); letter-spacing: 6px;">MISSION DIRECTIVE</h2>
+        <div class="story-text" id="intro-letter" style="max-width: 640px; font-style: normal; border-left-color: var(--primary-color); text-align: left;"></div>
+        <div class="btn-group">
+            <button onclick="Game.beginFromIntro()">BEGIN MISSION</button>
         </div>
     </div>
 
@@ -409,6 +721,7 @@
     <!-- Pause Menu -->
     <div id="pause-menu" class="screen interactive hidden">
         <h2>SYSTEM PAUSED</h2>
+        <p style="font-size: 0.9rem; margin: 0 0 20px 0; color: #aab; letter-spacing: 1px;">DRAG TO MOVE · HOLD TO FIRE · ESC TO PAUSE</p>
         <div class="btn-group">
             <button onclick="Game.resumeGame()">RESUME</button>
             <button class="secondary" onclick="Game.quitToMenu()">ABORT MISSION</button>
@@ -422,6 +735,10 @@
             <p id="puzzle-question">Solve to breach defenses!</p>
             <div id="puzzle-area"></div>
             <div id="puzzle-feedback" style="height: 20px; margin-top: 10px; font-weight: bold;"></div>
+            <div class="btn-group" style="margin-top: 15px;">
+                <button onclick="Game.submitPuzzle()">SUBMIT</button>
+                <button class="secondary" onclick="Game.showPuzzleHint()">HINT</button>
+            </div>
         </div>
     </div>
 
@@ -432,6 +749,52 @@
         <div class="btn-group">
             <button onclick="Game.restartLevel()">RETRY</button>
             <button class="secondary" onclick="Game.quitToMenu()">MAIN MENU</button>
+            <button class="secondary" id="dispatch-btn" onclick="Game.showDispatch()" style="display:none;">📨 FINAL TRANSMISSION</button>
+            <button class="secondary" id="cert-btn" onclick="Game.showCertificate()" style="display:none;">🎖 HONOR CERTIFICATE</button>
+        </div>
+    </div>
+
+    <!-- Final Transmission -->
+    <div id="dispatch-screen" class="screen interactive hidden">
+        <h2 style="color: var(--secondary-color);">FINAL TRANSMISSION</h2>
+        <div class="story-text" id="dispatch-body" style="max-width: 640px; font-style: normal; border-left-color: var(--primary-color); text-align: left;">
+        </div>
+        <div class="btn-group">
+            <button onclick="Game.closeDispatch()">BACK TO COMMAND</button>
+        </div>
+    </div>
+
+    <!-- Mission Log -->
+    <div id="log-screen" class="screen interactive hidden">
+        <h2>MISSION LOG</h2>
+        <div class="log-tabs">
+            <div class="log-tab" id="log-tab-planets" onclick="Game.switchLogTab('planets')">PLANETS</div>
+            <div class="log-tab" id="log-tab-achievements" onclick="Game.switchLogTab('achievements')">ACHIEVEMENTS</div>
+        </div>
+        <div id="planet-log-list"></div>
+        <div id="achievement-log-list"></div>
+        <div class="btn-group">
+            <button class="secondary" onclick="Game.quitToMenu()">BACK</button>
+        </div>
+    </div>
+
+    <!-- Honor Certificate -->
+    <div id="cert-screen" class="screen interactive hidden">
+        <div id="cert-paper">
+            <h2>Galactic Defense Command</h2>
+            <div class="cert-divider"></div>
+            <p class="cert-small">This honor is conferred upon</p>
+            <div class="cert-name" id="cert-name">ARIB ZAHER</div>
+            <p>Who defended humanity across the stars, conquering <span id="cert-planets">0 of 8</span> worlds,<br>
+            earning a lifetime combat score of <span id="cert-score">0</span>.</p>
+            <p class="cert-small">Issued <span id="cert-date"></span> · Campaign Command, Earth High Command</p>
+            <div class="cert-divider"></div>
+            <div id="cert-signature">— Your Commander</div>
+            <p class="cert-small">A game built for Ariba Zaher</p>
+        </div>
+        <div class="btn-group">
+            <button id="print-btn" onclick="window.print()">PRINT</button>
+            <button class="secondary" id="back-btn" onclick="Game.closeDispatch()">BACK</button>
         </div>
     </div>
 
@@ -439,7 +802,6 @@
     <script src="js/audio.js"></script>
     <script src="js/puzzles.js"></script>
     <script src="js/shooter.js"></script>
-    <script src="js/levels.js"></script>
     <script src="game.js"></script>
 </body>
 </html>

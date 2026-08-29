@@ -279,3 +279,45 @@ prnt("Hello")  # Should be print()
         bossName: "Alien Overlord"
     }
 ];
+
+// Selectable ships on the main menu (shape: arrow | heart | star)
+const SHIP_SKINS = [
+    { name: 'Urran Khatola', color: '#4a9eff', shape: 'arrow' },
+    { name: 'Heartfire', color: '#ff4d8d', shape: 'heart' },
+    { name: 'Star Lancer', color: '#a78bfa', shape: 'star' }
+];
+
+// Final transmission shown after the full campaign is complete.
+// Rewrite this in your own voice — it's the big moment.
+const FINAL_MESSAGE = `
+    <p>"Eight worlds. Eight battles. And one Commander who never once backed down.</p>
+    <p>I watched you fall, get up, crash again — and still reach for the next star. That is not luck. That is you.</p>
+    <p>I made this for you. Every star here was placed by my own hands, hoping you'd be the one to sail through them. Your name is on every briefing and every victory screen because you're the reason any of it felt worth building.</p>
+    <p>When the universe feels big and dark, remember you've already conquered a dark corner of it — and you did it with a smile.</p>
+    <p>Yours, with all the galaxies still to come.</p>
+    <div style="margin-top: 12px; color: var(--secondary-color); font-weight: 700; font-style: normal;">— Your Commander</div>
+`;
+
+// One short surprise per planet, unlocked the first time a planet is conquered.
+const PLANET_SECRETS = [
+    "Earth: You made Earth feel tiny by laughing at something I never expected you to laugh at. Please keep doing that.",
+    "TrES-2b: They call this the darkest planet. Nothing looks dark when you're around.",
+    "Mars: Even a red planet turns gold when you show up. Drive, courage, and a stubborn streak — the exact recipe.",
+    "Uranus: Ice giant, cold jokes, warm heart. Somehow, that's the precise engineering of you.",
+    "Saturn: Nothing is more beautiful than a ring around the thing you care about. This game is my ring.",
+    "Alpha Centauri A: For the record — in any binary system, you'd be the brighter star.",
+    "Kepler-16b: Two suns, and I still can't decide which one shines brighter than your smile.",
+    "Draugr: If we can conquer an alien homeworld together, we can handle any Monday that comes."
+];
+
+// Achievements. Condition keys: enemiesKilled, powerupsCollected, flawlessWaves,
+// bombsUsed, maxCombo (stats) | score (total score) | planets (all conquered)
+const ACHIEVEMENTS = [
+    { id: 'first_blood',   title: 'FIRST BLOOD',          desc: 'Destroy your first alien ship.',                stat: 'enemiesKilled', min: 1 },
+    { id: 'heat_seeker',   title: 'HEAT-SEEKER',          desc: 'Collect 25 power-ups.',                         stat: 'powerupsCollected', min: 25 },
+    { id: 'flawless',      title: 'FLAWLESS',             desc: 'Clear a wave without taking a single hit.',     stat: 'flawlessWaves', min: 1 },
+    { id: 'bomb_voyage',   title: 'BOMB VOYAGE',          desc: 'Detonate a tactical warhead.',                  stat: 'bombsUsed', min: 1 },
+    { id: 'combo_star',    title: 'COMBO STAR',           desc: 'Reach a 10x combo streak.',                     stat: 'maxCombo', min: 10 },
+    { id: 'war_bonds',     title: 'WAR BONDS',            desc: 'Earn a total score of 10,000.',                 score: true, min: 10000 },
+    { id: 'conqueror',     title: 'EARTH\u2019S BEST DEFENDER', desc: 'Free every planet in the campaign.',     planets: true }
+];

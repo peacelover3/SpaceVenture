@@ -192,7 +192,7 @@ const PuzzleSystem = {
     },
 
     renderPuzzle(puzzle) {
-        const container = document.getElementById('puzzle-container');
+        const container = document.getElementById('puzzle-area');
         container.innerHTML = '';
 
         if (puzzle.type === 'drag-drop') {
@@ -235,6 +235,7 @@ const PuzzleSystem = {
 
             // Touch support
             dragItem.addEventListener('touchstart', (e) => {
+                e.preventDefault();
                 this.draggedItem = item;
                 dragItem.classList.add('dragging');
             });
@@ -245,17 +246,22 @@ const PuzzleSystem = {
                 dragItem.style.position = 'fixed';
                 dragItem.style.left = touch.clientX - 50 + 'px';
                 dragItem.style.top = touch.clientY - 20 + 'px';
+                dragItem.style.zIndex = '1000';
             });
 
             dragItem.addEventListener('touchend', (e) => {
+                e.preventDefault();
                 dragItem.classList.remove('dragging');
                 dragItem.style.position = '';
                 dragItem.style.left = '';
                 dragItem.style.top = '';
+                dragItem.style.zIndex = '';
                 
                 // Check if dropped over a slot
                 const touch = e.changedTouches[0];
+                dragItem.style.pointerEvents = 'none';
                 const dropSlot = document.elementFromPoint(touch.clientX, touch.clientY);
+                dragItem.style.pointerEvents = '';
                 if (dropSlot && dropSlot.classList.contains('drop-slot') && !dropSlot.classList.contains('filled')) {
                     dropSlot.classList.add('filled');
                     dropSlot.textContent = item;

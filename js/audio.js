@@ -6,12 +6,30 @@ const AudioSystem = {
 
     // Generate simple synthesized sounds (no external files needed)
     init() {
+        if (this.context) return;
         try {
             this.context = new (window.AudioContext || window.webkitAudioContext)();
             this.enabled = true;
+            
+            // Browsers block audio until a user gesture. Resume on first interaction.
+            const unlock = () => {
+                this.unlock();
+                document.removeEventListener('pointerdown', unlock);
+                document.removeEventListener('keydown', unlock);
+            };
+            document.addEventListener('pointerdown', unlock);
+            document.addEventListener('keydown', unlock);
         } catch (e) {
             console.log('Web Audio API not supported');
             this.enabled = false;
+        }
+    },
+
+    // Resume the audio context if the browser suspended it (autoplay policy)
+    unlock() {
+        if (!this.context) return;
+        if (this.context.state === 'suspended') {
+            this.context.resume();
         }
     },
 
