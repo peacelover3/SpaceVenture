@@ -3,20 +3,20 @@ const CONFIG = {
     // Player settings
     playerSpeed: 0.15,
     bulletSpeed: 10,
-    fireRate: 150,
+    fireRate: 175,
     maxHealth: 100,
 
     // Enemy settings
-    enemySpawnRate: 800,
-    enemyBaseSpeed: 2,
+    enemySpawnRate: 650,
+    enemyBaseSpeed: 2.3,
     enemyBaseHealth: 1,
 
     // Boss settings
-    bossHealth: 50,
-    bossDamage: 2,
+    bossHealth: 65,
+    bossDamage: 3,
 
     // Wave settings
-    enemiesPerWave: 5,
+    enemiesPerWave: 7,
     wavesBeforeBoss: 3,
 
     // Scoring

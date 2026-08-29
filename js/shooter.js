@@ -473,7 +473,7 @@ class ShooterGame {
             if (now >= this.boss.nextShotAt) {
                 this.bossShoot();
                 const enraged = this.boss.health < this.boss.maxHealth * 0.5;
-                const baseInterval = enraged ? 1100 : 1500;
+                const baseInterval = enraged ? 950 : 1300;
                 const jitter = 0.75 + Math.random() * 0.5;
                 this.boss.nextShotAt = now + (baseInterval * jitter) / this.speedScale;
             }
@@ -1003,8 +1003,8 @@ class ShooterGame {
             Game.bumpStat('maxCombo', 0);
         }
         
-        // Chance to drop a power-up
-        if (Math.random() < 0.06) {
+        // Chance to drop a power-up (rarer on higher tech = more tension)
+        if (Math.random() < 0.04) {
             const roll = Math.random();
             const type = roll < 0.38 ? 'health' : roll < 0.72 ? 'rapid' : 'shield';
             this.pickups.push({
@@ -1058,8 +1058,8 @@ class ShooterGame {
         this.boss = {
             x: this.canvas.width / 2,
             y: 150,
-            speedX: 3 * this.speedScale * speedBoost,
-            speedY: 2 * this.speedScale * speedBoost,
+            speedX: 3.3 * this.speedScale * speedBoost,
+            speedY: 2.2 * this.speedScale * speedBoost,
             health: health,
             maxHealth: health,
             width: radius * 2,
