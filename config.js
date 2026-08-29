@@ -33,7 +33,7 @@ const CONFIG = {
 
     // Player configuration (customizable)
     playerConfig: {
-        commanderName: 'Ariba Zaher',
+        commanderName: 'Ariba Zaheer',
         squadName: 'Warbringers',
         shipName: 'Urran Khatola'
     }
@@ -59,7 +59,7 @@ const LEVELS = [
         description: "Our home planet! The aliens are attacking Earth first. You must defend it at all costs!",
         briefing: `
             <h3 style="color: #4a9eff;">🌍 EARTH - Mission 1: Sequencing</h3>
-            <p><strong>Commander:</strong> Ariba Zaher</p>
+            <p><strong>Commander:</strong> Ariba Zaheer</p>
             <p><strong>Squad:</strong> Warbringers</p>
             <p><strong>Ship:</strong> Urran Khatola</p>
             <p><strong>Mission:</strong> Defend Earth from the initial alien invasion!</p>
@@ -91,7 +91,7 @@ const LEVELS = [
         description: "The darkest known planet! Aliens use repeating attack patterns here!",
         briefing: `
             <h3 style="color: #ff6b6b;">🌑 TrES-2b - Mission 2: Loops</h3>
-            <p><strong>Commander:</strong> Ariba Zaher</p>
+            <p><strong>Commander:</strong> Ariba Zaheer</p>
             <p><strong>Squad:</strong> Warbringers</p>
             <p><strong>Mission:</strong> Conquer your first alien planet!</p>
             <p><strong>Programming Concept - Loops:</strong> Repeat actions without writing the same code over and over!</p>
@@ -126,7 +126,7 @@ for i in range(3):
         description: "The Red Planet! Smart decisions matter in this jungle world!",
         briefing: `
             <h3 style="color: #c1440e;">🔴 MARS - Mission 3: Conditions (If/Else)</h3>
-            <p><strong>Commander:</strong> Ariba Zaher</p>
+            <p><strong>Commander:</strong> Ariba Zaheer</p>
             <p><strong>Squad:</strong> Warbringers</p>
             <p><strong>Mission:</strong> Make the right decisions to conquer Mars!</p>
             <p><strong>Programming Concept - Conditions:</strong> Make decisions in your code based on different situations!</p>
@@ -159,7 +159,7 @@ else:
         description: "Ice giant! Full of stored energy variables!",
         briefing: `
             <h3 style="color: #4fd0e7;">🔵 URANUS - Mission 4: Variables</h3>
-            <p><strong>Commander:</strong> Ariba Zaher</p>
+            <p><strong>Commander:</strong> Ariba Zaheer</p>
             <p><strong>Squad:</strong> Warbringers</p>
             <p><strong>Mission:</strong> Capture the energy variables of Uranus!</p>
             <p><strong>Programming Concept - Variables:</strong> Store and remember values for later use!</p>
@@ -193,7 +193,7 @@ enemy_count = enemy_count - 1
         description: "Ringed beauty! Reusable code is key to breaking through!",
         briefing: `
             <h3 style="color: #ead6b8;">🪐 SATURN - Mission 5: Functions</h3>
-            <p><strong>Commander:</strong> Ariba Zaher</p>
+            <p><strong>Commander:</strong> Ariba Zaheer</p>
             <p><strong>Squad:</strong> Warbringers</p>
             <p><strong>Mission:</strong> Break through Saturn's ring defenses!</p>
             <p><strong>Programming Concept - Functions:</strong> Reusable blocks of code that perform specific tasks!</p>
@@ -228,7 +228,7 @@ shoot_enemy(alien2)
         description: "Binary star system! Glitched enemy behavior detected!",
         briefing: `
             <h3 style="color: #ffdfba;">⭐ ALPHA CENTAURI A - Mission 6: Debugging</h3>
-            <p><strong>Commander:</strong> Ariba Zaher</p>
+            <p><strong>Commander:</strong> Ariba Zaheer</p>
             <p><strong>Squad:</strong> Warbringers</p>
             <p><strong>Mission:</strong> Find and fix the bugs in this corrupted zone!</p>
             <p><strong>Programming Concept - Debugging:</strong> Finding and fixing errors in code!</p>
@@ -263,7 +263,7 @@ prnt("Hello")  # Should be print()
         description: "Circumbinary planet! The final stand before their homeworld!",
         briefing: `
             <h3 style="color: #b8860b;">🌟 KEPLER-16b - Mission 7: Advanced Logic</h3>
-            <p><strong>Commander:</strong> Ariba Zaher</p>
+            <p><strong>Commander:</strong> Ariba Zaheer</p>
             <p><strong>Squad:</strong> Warbringers</p>
             <p><strong>Mission:</strong> The penultimate battle!</p>
             <p><strong>All Concepts Combined:</strong> You'll need everything you've learned!</p>
@@ -294,7 +294,7 @@ prnt("Hello")  # Should be print()
         description: "The Alien Homeworld! End the threat once and for all!",
         briefing: `
             <h3 style="color: #4b0082;">☠️ DRAUGR - Mission 8: FINAL BOSS</h3>
-            <p><strong>Commander:</strong> Ariba Zaher</p>
+            <p><strong>Commander:</strong> Ariba Zaheer</p>
             <p><strong>Squad:</strong> Warbringers</p>
             <p><strong>Mission:</strong> End the alien threat once and for all!</p>
             <p>This is it! The ultimate test of your programming knowledge!</p>

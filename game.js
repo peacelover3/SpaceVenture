@@ -44,7 +44,7 @@ const Game = {
             ship: document.getElementById('ship-name')
         };
         
-        if (els.commander) els.commander.textContent = config.commanderName || 'Ariba Zaher';
+        if (els.commander) els.commander.textContent = config.commanderName || 'Ariba Zaheer';
         if (els.squad) els.squad.textContent = config.squadName || 'Warbringers';
         if (els.ship) els.ship.textContent = config.shipName || 'Urran Khatola';
     },
