@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Code Defender - Save the Universe!</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Main Menu -->
+        <div id="main-menu" class="screen active">
+            <h1>🚀 CODE DEFENDER</h1>
+            <p class="subtitle">Defend the Universe with Programming Power!</p>
+            <div class="menu-options">
+                <button id="start-btn" class="menu-btn">START MISSION</button>
+                <button id="continue-btn" class="menu-btn" style="display:none;">CONTINUE</button>
+                <button id="instructions-btn" class="menu-btn">HOW TO PLAY</button>
+            </div>
+            <div id="planet-status" class="planet-status"></div>
+        </div>
+
+        <!-- Instructions Screen -->
+        <div id="instructions-screen" class="screen">
+            <h2>📋 MISSION BRIEFING</h2>
+            <div class="instructions-content">
+                <h3>🎮 How to Play:</h3>
+                <ul>
+                    <li><strong>Shooter Phase:</strong> Move your ship with mouse/touch, click/tap to shoot aliens</li>
+                    <li><strong>Boss Fights:</strong> Giant motherships appear! Solve programming puzzles to defeat them</li>
+                    <li><strong>Planet Conquest:</strong> Win levels to conquer planets, lose and retreat to previous ones</li>
+                    <li><strong>Final Stand:</strong> If you lose Earth, humanity becomes slaves forever!</li>
+                </ul>
+                <h3>💡 Programming Concepts:</h3>
+                <p>Don't worry if you're new to programming! Each level teaches you concepts through gameplay:</p>
+                <ul>
+                    <li><strong>Sequencing:</strong> Steps in order (Level 1)</li>
+                    <li><strong>Loops:</strong> Repeating actions (Level 2)</li>
+                    <li><strong>Conditions:</strong> If/Else decisions (Level 3)</li>
+                    <li><strong>Variables:</strong> Storing values (Level 4)</li>
+                    <li><strong>Functions:</strong> Reusable code blocks (Level 5)</li>
+                    <li><strong>Debugging:</strong> Finding errors (Level 6)</li>
+                    <li><strong>Mixed Challenge:</strong> Use everything! (Level 7)</li>
+                </ul>
+                <button id="back-to-menu" class="menu-btn">BACK TO MENU</button>
+            </div>
+        </div>
+
+        <!-- Briefing Screen -->
+        <div id="briefing-screen" class="screen">
+            <h2 id="briefing-title">Planet Briefing</h2>
+            <div id="briefing-content"></div>
+            <div class="briefing-controls">
+                <button id="start-level-btn" class="menu-btn">LAUNCH DEFENSE!</button>
+                <button id="back-from-briefing" class="menu-btn secondary">BACK</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div id="hud">
+                <div id="health-bar">
+                    <div id="health-fill"></div>
+                    <span id="health-text">HP: 100%</span>
+                </div>
+                <div id="level-info">
+                    <span id="current-planet">Earth</span>
+                    <span id="wave-counter">Wave: 1/5</span>
+                </div>
+                <div id="score-display">Score: <span id="score">0</span></div>
+            </div>
+            <canvas id="game-canvas"></canvas>
+            <div id="boss-warning" class="hidden">
+                ⚠️ MOTHERSHIP DETECTED! ⚠️
+            </div>
+            <div id="pause-overlay" class="hidden">
+                <h2>PAUSED</h2>
+                <button id="resume-btn" class="menu-btn">RESUME</button>
+                <button id="quit-to-menu" class="menu-btn secondary">QUIT TO MENU</button>
+            </div>
+        </div>
+
+        <!-- Puzzle Screen -->
+        <div id="puzzle-screen" class="screen">
+            <h2 id="puzzle-title">Programming Challenge!</h2>
+            <p id="puzzle-instruction"></p>
+            <div id="puzzle-container"></div>
+            <div id="puzzle-feedback" class="feedback"></div>
+            <button id="submit-puzzle" class="menu-btn">FIRE WEAPON!</button>
+            <button id="hint-btn" class="menu-btn secondary">HINT</button>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory-screen" class="screen">
+            <h2>🎉 PLANET CONQUERED! 🎉</h2>
+            <p id="victory-message"></p>
+            <div id="next-planet-preview"></div>
+            <button id="next-level-btn" class="menu-btn">NEXT PLANET</button>
+            <button id="celebrate-btn" class="menu-btn secondary">CELEBRATE!</button>
+        </div>
+
+        <!-- Defeat Screen -->
+        <div id="defeat-screen" class="screen">
+            <h2 id="defeat-title">PLANET LOST!</h2>
+            <p id="defeat-message"></p>
+            <div id="retreat-info"></div>
+            <button id="retry-level-btn" class="menu-btn">DEFEND AGAIN!</button>
+            <button id="retreat-btn" class="menu-btn secondary">RETREAT</button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen">
+            <h2>💀 GAME OVER 💀</h2>
+            <p>Earth has fallen...</p>
+            <p>Humanity is now enslaved by the alien empire.</p>
+            <p>All programming knowledge lost forever.</p>
+            <div id="final-stats"></div>
+            <button id="restart-game-btn" class="menu-btn">TRY AGAIN</button>
+        </div>
+
+        <!-- Victory Complete Screen -->
+        <div id="victory-complete-screen" class="screen">
+            <h2>🏆 UNIVERSE SAVED! 🏆</h2>
+            <p>You've defeated the alien empire and conquered all planets!</p>
+            <p>Programming knowledge has triumphed!</p>
+            <div id="complete-stats"></div>
+            <button id="play-again-btn" class="menu-btn">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/puzzles.js"></script>
+    <script src="js/shooter.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
