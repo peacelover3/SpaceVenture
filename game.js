@@ -1,299 +1,203 @@
-// Main Game Controller
+// Main Game Controller - Code Defender
 const Game = {
     currentLevel: 0,
     conqueredPlanets: [],
     totalScore: 0,
-    attempts: 0,
     shooter: null,
+    isPaused: false,
 
     init() {
-        // Initialize audio system
         AudioSystem.init();
         
-        // Create shooter instance
-        const canvas = document.getElementById('game-canvas');
+        const canvas = document.getElementById('gameCanvas');
+        if (!canvas) {
+            console.error('Canvas not found!');
+            return;
+        }
+        
         this.shooter = new ShooterGame(canvas);
-        
-        // Load saved game
         this.loadGame();
-        
-        // Setup event listeners
+        this.updateMainMenu();
         this.setupEventListeners();
-        
-        // Update planet status
         this.updatePlanetStatus();
     },
 
+    updateMainMenu() {
+        const config = CONFIG.playerConfig || {};
+        const els = {
+            commander: document.getElementById('commander-name'),
+            squad: document.getElementById('squad-name'),
+            ship: document.getElementById('ship-name')
+        };
+        
+        if (els.commander) els.commander.textContent = config.commanderName || 'Ariba Zaher';
+        if (els.squad) els.squad.textContent = config.squadName || 'Warbringers';
+        if (els.ship) els.ship.textContent = config.shipName || 'Urran Khatola';
+    },
+
     setupEventListeners() {
-        // Main menu buttons
-        document.getElementById('start-btn').addEventListener('click', () => {
-            this.currentLevel = 0;
-            this.showBriefing(0);
-        });
-        
-        document.getElementById('continue-btn').addEventListener('click', () => {
-            if (this.conqueredPlanets.length > 0) {
-                this.currentLevel = this.conqueredPlanets.length;
-                this.showBriefing(this.currentLevel);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.shooter && this.shooter.isPlaying) {
+                this.pauseGame();
             }
-        });
-        
-        document.getElementById('instructions-btn').addEventListener('click', () => {
-            this.showScreen('instructions-screen');
-        });
-        
-        document.getElementById('back-to-menu').addEventListener('click', () => {
-            this.showScreen('main-menu');
-            this.updatePlanetStatus();
-        });
-        
-        // Briefing buttons
-        document.getElementById('start-level-btn').addEventListener('click', () => {
-            this.startLevel(this.currentLevel);
-        });
-        
-        document.getElementById('back-from-briefing').addEventListener('click', () => {
-            this.showScreen('main-menu');
-        });
-        
-        // Puzzle buttons
-        document.getElementById('submit-puzzle').addEventListener('click', () => {
-            if (PuzzleSystem.checkAnswer()) {
-                setTimeout(() => {
-                    this.handleLevelWin();
-                }, 1500);
-            }
-        });
-        
-        document.getElementById('hint-btn').addEventListener('click', () => {
-            PuzzleSystem.showHint();
-        });
-        
-        // Victory buttons
-        document.getElementById('next-level-btn').addEventListener('click', () => {
-            if (this.currentLevel < LEVELS.length - 1) {
-                this.currentLevel++;
-                this.showBriefing(this.currentLevel);
-            } else {
-                this.showVictoryComplete();
-            }
-        });
-        
-        document.getElementById('celebrate-btn').addEventListener('click', () => {
-            AudioSystem.playVictory();
-            this.createCelebration();
-        });
-        
-        // Defeat buttons
-        document.getElementById('retry-level-btn').addEventListener('click', () => {
-            this.startLevel(this.currentLevel);
-        });
-        
-        document.getElementById('retreat-btn').addEventListener('click', () => {
-            this.handleRetreat();
-        });
-        
-        // Pause buttons
-        document.getElementById('resume-btn').addEventListener('click', () => {
-            this.shooter.resume();
-        });
-        
-        document.getElementById('quit-to-menu').addEventListener('click', () => {
-            this.shooter.isPlaying = false;
-            this.showScreen('main-menu');
-            this.updatePlanetStatus();
-        });
-        
-        // Game over buttons
-        document.getElementById('restart-game-btn').addEventListener('click', () => {
-            this.conqueredPlanets = [];
-            this.totalScore = 0;
-            this.currentLevel = 0;
-            this.saveGame();
-            this.showScreen('main-menu');
-            this.updatePlanetStatus();
-        });
-        
-        // Victory complete button
-        document.getElementById('play-again-btn').addEventListener('click', () => {
-            this.conqueredPlanets = [];
-            this.totalScore = 0;
-            this.currentLevel = 0;
-            this.saveGame();
-            this.showScreen('main-menu');
-            this.updatePlanetStatus();
         });
     },
 
-    showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
-        });
-        document.getElementById(screenId).classList.add('active');
+    startCampaign() {
+        this.currentLevel = this.conqueredPlanets.length > 0 ? this.conqueredPlanets.length : 0;
+        this.showBriefing(this.currentLevel);
     },
 
     showBriefing(levelId) {
+        if (levelId >= LEVELS.length) levelId = LEVELS.length - 1;
+        
         const level = LEVELS[levelId];
-        document.getElementById('briefing-title').textContent = `${level.name} - ${level.concept}`;
-        document.getElementById('briefing-content').innerHTML = level.briefing;
-        this.showScreen('briefing-screen');
+        document.getElementById('level-title').textContent = `${level.name} - ${level.concept}`;
+        document.getElementById('briefing-text').innerHTML = level.briefing;
+        document.getElementById('concept-name').textContent = level.concept;
+        document.getElementById('concept-desc').textContent = level.description;
+        
+        this.hideAllScreens();
+        document.getElementById('briefing-screen').classList.remove('hidden');
+    },
+
+    launchMission() {
+        this.startLevel(this.currentLevel);
     },
 
     startLevel(levelId) {
         this.currentLevel = levelId;
-        this.showScreen('game-screen');
-        this.shooter.startLevel(levelId);
+        this.isPaused = false;
+        
+        this.hideAllScreens();
+        document.getElementById('hud').style.display = 'flex';
+        document.getElementById('wave-progress').style.display = 'block';
+        
+        if (this.shooter) {
+            this.shooter.startLevel(levelId);
+        }
     },
 
-    showPuzzleScreen() {
-        const puzzle = PuzzleSystem.generatePuzzle(this.currentLevel);
-        document.getElementById('puzzle-title').textContent = puzzle.title;
-        document.getElementById('puzzle-instruction').textContent = puzzle.instruction;
-        PuzzleSystem.renderPuzzle(puzzle);
-        this.showScreen('puzzle-screen');
+    pauseGame() {
+        if (!this.shooter || !this.shooter.isPlaying) return;
+        
+        this.isPaused = true;
+        this.shooter.pause();
+        
+        this.hideAllScreens();
+        document.getElementById('pause-menu').classList.remove('hidden');
+    },
+
+    resumeGame() {
+        if (!this.shooter) return;
+        
+        this.isPaused = false;
+        this.shooter.resume();
+        
+        this.hideAllScreens();
+        document.getElementById('hud').style.display = 'flex';
+        document.getElementById('wave-progress').style.display = 'block';
+    },
+
+    quitToMenu() {
+        if (this.shooter) this.shooter.stop();
+        this.isPaused = false;
+        
+        this.hideAllScreens();
+        document.getElementById('main-menu').classList.remove('hidden');
+        document.getElementById('hud').style.display = 'none';
+        document.getElementById('wave-progress').style.display = 'none';
+        
+        this.updatePlanetStatus();
     },
 
     handleLevelWin() {
         AudioSystem.playVictory();
-        this.totalScore += this.shooter.score + CONFIG.scorePerPuzzle;
+        this.totalScore += (this.shooter ? this.shooter.score : 0) + CONFIG.scorePerPuzzle;
         
         if (!this.conqueredPlanets.includes(this.currentLevel)) {
             this.conqueredPlanets.push(this.currentLevel);
         }
         
         this.saveGame();
-        
-        const level = LEVELS[this.currentLevel];
-        document.getElementById('victory-message').textContent = 
-            `You've defended ${level.name} and learned about ${level.concept}!`;
+        this.quitToMenu();
         
         if (this.currentLevel < LEVELS.length - 1) {
-            const nextLevel = LEVELS[this.currentLevel + 1];
-            document.getElementById('next-planet-preview').innerHTML = `
-                <h3>Next Target: ${nextLevel.name}</h3>
-                <p>Concept: ${nextLevel.concept}</p>
-                <p>${nextLevel.description}</p>
-            `;
+            this.currentLevel++;
+            setTimeout(() => this.showBriefing(this.currentLevel), 500);
+        } else {
+            this.showVictoryComplete();
         }
         
-        this.showScreen('victory-screen');
         this.updatePlanetStatus();
     },
 
     handleLevelLoss() {
-        const level = LEVELS[this.currentLevel];
-        document.getElementById('defeat-message').textContent = 
-            `The aliens have overwhelmed ${level.name}!`;
-        
         if (this.currentLevel === 0) {
-            // Lost Earth - Game Over
-            document.getElementById('defeat-title').textContent = 'EARTH HAS FALLEN!';
-            document.getElementById('retreat-info').innerHTML = `
-                <p>All hope is lost. Humanity is enslaved.</p>
-                <p>The alien empire rules the universe.</p>
-            `;
-            document.getElementById('retry-level-btn').style.display = 'inline-block';
-            document.getElementById('retreat-btn').style.display = 'none';
+            this.showGameOver(true);
         } else {
-            // Retreat to previous planet
-            const previousLevel = Math.max(0, this.currentLevel - 1);
-            document.getElementById('retreat-info').innerHTML = `
-                <p>Retreating to ${LEVELS[previousLevel].name}...</p>
-                <p>Prepare for the alien assault there!</p>
-            `;
-            document.getElementById('retry-level-btn').style.display = 'inline-block';
-            document.getElementById('retreat-btn').style.display = 'inline-block';
+            this.handleRetreat();
         }
-        
-        this.showScreen('defeat-screen');
     },
 
     handleRetreat() {
         if (this.currentLevel > 0) {
             this.currentLevel = Math.max(0, this.currentLevel - 1);
-            
-            // Remove conquered planets beyond current level
             this.conqueredPlanets = this.conqueredPlanets.filter(p => p <= this.currentLevel);
-            
             this.saveGame();
-            this.showBriefing(this.currentLevel);
+            this.quitToMenu();
+            setTimeout(() => this.showBriefing(this.currentLevel), 500);
             this.updatePlanetStatus();
         }
     },
 
+    showGameOver(isEarthLost) {
+        this.quitToMenu();
+        
+        const endScreen = document.getElementById('end-screen');
+        const endTitle = document.getElementById('end-title');
+        const endMessage = document.getElementById('end-message');
+        
+        endScreen.classList.remove('hidden');
+        endTitle.textContent = isEarthLost ? 'EARTH HAS FALLEN' : 'MISSION FAILED';
+        endMessage.textContent = isEarthLost 
+            ? 'Humanity has been enslaved. The alien empire rules the universe.'
+            : `The aliens have overwhelmed ${LEVELS[this.currentLevel].name}!`;
+    },
+
     showVictoryComplete() {
         AudioSystem.playVictory();
-        document.getElementById('complete-stats').innerHTML = `
-            <div class="stat-row">
-                <span>Planets Conquered:</span>
-                <span>${this.conqueredPlanets.length}/${LEVELS.length}</span>
-            </div>
-            <div class="stat-row">
-                <span>Total Score:</span>
-                <span>${this.totalScore}</span>
-            </div>
-            <div class="stat-row">
-                <span>Programming Concepts Mastered:</span>
-                <span>All 7!</span>
-            </div>
+        this.quitToMenu();
+        
+        const endScreen = document.getElementById('end-screen');
+        const endTitle = document.getElementById('end-title');
+        const endMessage = document.getElementById('end-message');
+        
+        endScreen.classList.remove('hidden');
+        endTitle.textContent = 'VICTORY!';
+        endMessage.innerHTML = `
+            You've defeated the Alien Overlord and saved humanity!<br>
+            Planets Conquered: ${this.conqueredPlanets.length}/${LEVELS.length}<br>
+            Total Score: ${this.totalScore}
         `;
-        this.showScreen('victory-complete-screen');
+        
         this.conqueredPlanets = [];
+        this.currentLevel = 0;
         this.saveGame();
     },
 
-    createCelebration() {
-        // Simple celebration effect
-        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
-        for (let i = 0; i < 50; i++) {
-            setTimeout(() => {
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                console.log(`🎉 Celebration particle ${i} in ${color}`);
-            }, i * 100);
-        }
+    hideAllScreens() {
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.add('hidden');
+        });
     },
 
     updatePlanetStatus() {
-        const container = document.getElementById('planet-status');
-        const continueBtn = document.getElementById('continue-btn');
-        
-        if (this.conqueredPlanets.length === 0) {
-            container.innerHTML = '<h3>No planets conquered yet</h3><p>Start your mission to defend Earth!</p>';
-            continueBtn.style.display = 'none';
-            return;
-        }
-        
-        let html = '<h3>Conquered Planets</h3><div class="planets-grid">';
-        
-        LEVELS.forEach((level, index) => {
-            let statusClass = '';
-            let statusIcon = '⚪';
-            
-            if (this.conqueredPlanets.includes(index)) {
-                statusClass = 'conquered';
-                statusIcon = '✅';
-            } else if (index === this.conqueredPlanets.length) {
-                statusClass = 'current';
-                statusIcon = '🎯';
-            } else if (index < this.conqueredPlanets.length) {
-                statusClass = 'lost';
-                statusIcon = '❌';
+        if (this.currentLevel < LEVELS.length) {
+            const planetDisplay = document.getElementById('planet-display');
+            if (planetDisplay) {
+                planetDisplay.textContent = `TARGET: ${LEVELS[this.currentLevel].name.toUpperCase()}`;
             }
-            
-            html += `
-                <div class="planet-item ${statusClass}">
-                    ${statusIcon} ${level.name}
-                </div>
-            `;
-        });
-        
-        html += '</div>';
-        container.innerHTML = html;
-        
-        if (this.conqueredPlanets.length > 0 && this.conqueredPlanets.length < LEVELS.length) {
-            continueBtn.style.display = 'inline-block';
-        } else {
-            continueBtn.style.display = 'none';
         }
     },
 
@@ -317,7 +221,6 @@ const Game = {
     }
 };
 
-// Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     Game.init();
 });
