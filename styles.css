@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #0a0a1a;
+    background: #0a0a1a url('assets/bg1.jpg') center / cover no-repeat fixed;
     color: #fff;
     overflow: hidden;
     touch-action: none;
@@ -31,7 +31,7 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: radial-gradient(ellipse at center, #1a1a3a 0%, #0a0a1a 70%, #000000 100%);
+    background: rgba(4, 7, 18, 0.55);
 }
 
 .screen.active {

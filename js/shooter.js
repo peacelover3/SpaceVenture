@@ -1,4 +1,6 @@
 // Shooter Game Engine
+const MENU_BACKGROUND = 'assets/bg1.jpg';
+
 class ShooterGame {
     constructor(canvas) {
         this.canvas = canvas;
@@ -87,6 +89,7 @@ class ShooterGame {
             planetR: 0
         };
         this._bgCanvas = null;
+        this._bgImgCache = {};
         this._glowCache = {};
         this._hudFrame = 0;
         this._bossTime = 0;
@@ -266,7 +269,22 @@ class ShooterGame {
         this.bgTop = level.bgTop || '#0a0a1a';
         this.bgBottom = level.bgBottom || '#1a1a3a';
         this.bgColor = level.color || '#4a9eff';
-        this.canvas.style.background = `linear-gradient(180deg, ${this.bgTop}, ${this.bgBottom})`;
+        const src = this.menuMode ? MENU_BACKGROUND : (level.bgImage || null);
+        this.setBgImage(src);
+    }
+    
+    setBgImage(src) {
+        this._bgPainted = null; // force rebuild once the new image is ready
+        if (!src) {
+            this.bgImage = null;
+            return;
+        }
+        if (!this._bgImgCache[src]) {
+            const img = new Image();
+            img.src = src;
+            this._bgImgCache[src] = img;
+        }
+        this.bgImage = this._bgImgCache[src];
     }
     
     beginLoop() {
@@ -608,7 +626,11 @@ class ShooterGame {
     
     drawBackground() {
         const w = this.canvas.width, h = this.canvas.height;
-        if (!this._bgCanvas || this._bgCanvas.width !== w || this._bgCanvas.height !== h) {
+        const img = this.bgImage || null;
+        const wantSrc = img && img.complete && img.naturalWidth ? img.src : null;
+        const sizeDirty = !this._bgCanvas || this._bgCanvas.width !== w || this._bgCanvas.height !== h;
+        if (sizeDirty || this._bgPainted !== wantSrc) {
+            this._bgPainted = wantSrc;
             this.buildBackground();
         }
         this.ctx.drawImage(this._bgCanvas, 0, 0);
@@ -621,7 +643,24 @@ class ShooterGame {
         this._bgCanvas.height = h;
         const c = this._bgCanvas.getContext('2d');
         
-        // Gradient sky
+        // Themed background image (cover-fit) when available
+        const img = this.bgImage;
+        if (img && img.complete && img.naturalWidth) {
+            const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+            const dw = img.naturalWidth * scale;
+            const dh = img.naturalHeight * scale;
+            c.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+            // Vignette + slight dim so the ship and projectiles stay readable
+            const vignette = c.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.38, w / 2, h / 2, Math.max(w, h) * 0.78);
+            vignette.addColorStop(0, 'rgba(3,6,18,0.15)');
+            vignette.addColorStop(0.6, 'rgba(3,6,18,0.4)');
+            vignette.addColorStop(1, 'rgba(2,4,12,0.78)');
+            c.fillStyle = vignette;
+            c.fillRect(0, 0, w, h);
+            return;
+        }
+        
+        // Fallback: gradient sky
         const gradient = c.createLinearGradient(0, 0, 0, h);
         gradient.addColorStop(0, this.bgTop || '#0a0a1a');
         gradient.addColorStop(1, this.bgBottom || '#1a1a3a');
