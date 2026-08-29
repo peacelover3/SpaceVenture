@@ -77,7 +77,10 @@ const LEVELS = [
         bgTop: "#0a0a1a",
         bgBottom: "#1a1a3a",
         enemyType: "basic",
-        bossName: "Scout Mothership"
+        bossName: "Scout Mothership",
+        bossShape: "byte",
+        bossColor: "#4a9eff",
+        bossAttack: "spread"
     },
     {
         id: 1,
@@ -108,7 +111,10 @@ for i in range(3):
         bgTop: "#1a0a0a",
         bgBottom: "#3a1a1a",
         enemyType: "pattern",
-        bossName: "Loop Commander"
+        bossName: "Loop Commander",
+        bossShape: "phantom",
+        bossColor: "#ff4d6b",
+        bossAttack: "ring"
     },
     {
         id: 2,
@@ -137,7 +143,10 @@ else:
         bgTop: "#1a0a0a",
         bgBottom: "#3a1a1a",
         enemyType: "smart",
-        bossName: "Decision Master"
+        bossName: "Decision Master",
+        bossShape: "arachnid",
+        bossColor: "#e0703c",
+        bossAttack: "snake"
     },
     {
         id: 3,
@@ -167,7 +176,10 @@ enemy_count = enemy_count - 1
         bgTop: "#0a1a1a",
         bgBottom: "#1a3a3a",
         enemyType: "variable",
-        bossName: "Variable Guardian"
+        bossName: "Variable Guardian",
+        bossShape: "crystal",
+        bossColor: "#58e0f2",
+        bossAttack: "spiral"
     },
     {
         id: 4,
@@ -198,7 +210,10 @@ shoot_enemy(alien2)
         bgTop: "#1a1a0a",
         bgBottom: "#3a3a1a",
         enemyType: "function",
-        bossName: "Function Core"
+        bossName: "Function Core",
+        bossShape: "ringlord",
+        bossColor: "#ffd27a",
+        bossAttack: "ring"
     },
     {
         id: 5,
@@ -229,7 +244,10 @@ prnt("Hello")  # Should be print()
         bgTop: "#1a0a1a",
         bgBottom: "#3a1a3a",
         enemyType: "bug",
-        bossName: "Bug Queen"
+        bossName: "Bug Queen",
+        bossShape: "corrupter",
+        bossColor: "#ff9dff",
+        bossAttack: "aim"
     },
     {
         id: 6,
@@ -256,7 +274,10 @@ prnt("Hello")  # Should be print()
         bgTop: "#1a1a0a",
         bgBottom: "#3a3a0a",
         enemyType: "elite",
-        bossName: "Logic Emperor"
+        bossName: "Logic Emperor",
+        bossShape: "golem",
+        bossColor: "#ffb347",
+        bossAttack: "spiral"
     },
     {
         id: 7,
@@ -276,7 +297,10 @@ prnt("Hello")  # Should be print()
         bgTop: "#0a0a0a",
         bgBottom: "#1a0a1a",
         enemyType: "mothership",
-        bossName: "Alien Overlord"
+        bossName: "Alien Overlord",
+        bossShape: "overlord",
+        bossColor: "#b06bff",
+        bossAttack: "rain"
     }
 ];
 

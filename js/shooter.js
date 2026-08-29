@@ -86,6 +86,10 @@ class ShooterGame {
             planetY: 0,
             planetR: 0
         };
+        this._bgCanvas = null;
+        this._glowCache = {};
+        this._hudFrame = 0;
+        this._bossTime = 0;
         
 // Initialize stars
         this.initStars();
@@ -387,7 +391,7 @@ class ShooterGame {
                 this.createExplosion(bullet.x, bullet.y, '#ff2a2a');
                 return false;
             }
-            return bullet.y < this.canvas.height + 20;
+            return bullet.y < this.canvas.height + 20 && bullet.y > -20;
         });
         
         // Update pickups
@@ -435,6 +439,7 @@ class ShooterGame {
         // Update boss
         if (this.bossActive && this.boss) {
             if (this.boss.flash > 0) this.boss.flash--;
+            this._bossTime++;
             this.boss.x += this.boss.speedX;
             this.boss.y += this.boss.speedY;
             
@@ -489,7 +494,7 @@ class ShooterGame {
         if (this.shakeTime > 0) this.shakeTime--;
         if (this.flashScreen > 0) this.flashScreen--;
         
-        this.updateHUD();
+        if (++this._hudFrame % 4 === 0) this.updateHUD();
     }
     
     handleKeyboardMovement() {
@@ -554,26 +559,18 @@ class ShooterGame {
         }
         
         // Draw bullets
-        this.ctx.fillStyle = '#4a9eff';
+        this.ctx.fillStyle = '#cfe6ff';
         this.bullets.forEach(bullet => {
-            this.ctx.shadowColor = '#4a9eff';
-            this.ctx.shadowBlur = 8;
-            this.ctx.beginPath();
-            this.ctx.arc(bullet.x, bullet.y, 4, 0, Math.PI * 2);
-            this.ctx.fill();
+            this.drawGlow('#4a9eff', bullet.x, bullet.y, 12);
+            this.ctx.fillRect(bullet.x - 2, bullet.y - 4, 4, 8);
         });
-        this.ctx.shadowBlur = 0;
         
         // Draw enemy bullets
-        this.ctx.fillStyle = '#ff2a2a';
+        this.ctx.fillStyle = '#ff8a7a';
         this.enemyBullets.forEach(bullet => {
-            this.ctx.shadowColor = '#ff2a2a';
-            this.ctx.shadowBlur = 10;
-            this.ctx.beginPath();
-            this.ctx.arc(bullet.x, bullet.y, 6, 0, Math.PI * 2);
-            this.ctx.fill();
+            this.drawGlow('#ff2a2a', bullet.x, bullet.y, 16);
+            this.ctx.fillRect(bullet.x - 3, bullet.y - 3, 6, 6);
         });
-        this.ctx.shadowBlur = 0;
         
         // Draw pickups
         this.pickups.forEach(pickup => this.drawPickup(pickup));
@@ -586,29 +583,7 @@ class ShooterGame {
         
         // Draw boss
         if (this.bossActive && this.boss) {
-            this.ctx.fillStyle = this.boss.flash > 0 ? '#ffffff' : '#ff00ff';
-            this.ctx.shadowColor = '#ff00ff';
-            this.ctx.shadowBlur = 20;
-            this.ctx.beginPath();
-            this.ctx.arc(this.boss.x, this.boss.y, 40, 0, Math.PI * 2);
-            this.ctx.fill();
-            this.ctx.shadowBlur = 0;
-            
-            // Inner ring
-            this.ctx.globalAlpha = 0.5;
-            this.ctx.strokeStyle = '#ffffff';
-            this.ctx.lineWidth = 2;
-            this.ctx.beginPath();
-            this.ctx.arc(this.boss.x, this.boss.y, 30, 0, Math.PI * 2);
-            this.ctx.stroke();
-            this.ctx.globalAlpha = 1;
-            
-            // Boss health bar
-            const bossHealthPercent = Math.max(0, this.boss.health / this.boss.maxHealth);
-            this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-            this.ctx.fillRect(this.boss.x - 45, this.boss.y - 55, 90, 8);
-            this.ctx.fillStyle = '#00ff9d';
-            this.ctx.fillRect(this.boss.x - 45, this.boss.y - 55, 90 * bossHealthPercent, 8);
+            this.drawBoss(this.boss);
         }
         
         // Draw particles
@@ -632,78 +607,121 @@ class ShooterGame {
     }
     
     drawBackground() {
-        // Gradient sky
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        gradient.addColorStop(0, this.bgTop || '#0a0a1a');
-        gradient.addColorStop(1, this.bgBottom || '#1a1a3a');
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        this.drawNebula();
-        this.drawPlanet();
+        const w = this.canvas.width, h = this.canvas.height;
+        if (!this._bgCanvas || this._bgCanvas.width !== w || this._bgCanvas.height !== h) {
+            this.buildBackground();
+        }
+        this.ctx.drawImage(this._bgCanvas, 0, 0);
     }
     
-    drawNebula() {
+    buildBackground() {
+        const w = this.canvas.width, h = this.canvas.height;
+        if (!this._bgCanvas) this._bgCanvas = document.createElement('canvas');
+        this._bgCanvas.width = w;
+        this._bgCanvas.height = h;
+        const c = this._bgCanvas.getContext('2d');
+        
+        // Gradient sky
+        const gradient = c.createLinearGradient(0, 0, 0, h);
+        gradient.addColorStop(0, this.bgTop || '#0a0a1a');
+        gradient.addColorStop(1, this.bgBottom || '#1a1a3a');
+        c.fillStyle = gradient;
+        c.fillRect(0, 0, w, h);
+        
+        this.drawNebula(c);
+        this.drawPlanet(c);
+    }
+    
+    drawNebula(ctx) {
+        ctx = ctx || this.ctx;
         const color = this.bgColor || '#4a9eff';
         const nx = this.bg.nebulaX || this.canvas.width * 0.72;
         const ny = this.bg.nebulaY || this.canvas.height * 0.2;
         const r = this.canvas.width * 0.45;
-        const glow = this.ctx.createRadialGradient(nx, ny, 0, nx, ny, r);
+        const glow = ctx.createRadialGradient(nx, ny, 0, nx, ny, r);
         glow.addColorStop(0, this.hexToRgba(color, 0.16));
         glow.addColorStop(0.6, this.hexToRgba(color, 0.06));
         glow.addColorStop(1, 'rgba(0,0,0,0)');
-        this.ctx.fillStyle = glow;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
     
-    drawPlanet() {
+    drawPlanet(ctx) {
+        ctx = ctx || this.ctx;
         const color = this.bgColor || '#4a9eff';
         const px = this.bg.planetX || this.canvas.width * 0.18;
         const py = this.bg.planetY || this.canvas.height * 0.18;
         const r = this.bg.planetR || Math.min(this.canvas.width, this.canvas.height) * 0.13;
         
         // Atmosphere glow
-        const glow = this.ctx.createRadialGradient(px, py, r * 0.6, px, py, r * 2);
+        const glow = ctx.createRadialGradient(px, py, r * 0.6, px, py, r * 2);
         glow.addColorStop(0, this.hexToRgba(color, 0.28));
         glow.addColorStop(1, 'rgba(0,0,0,0)');
-        this.ctx.fillStyle = glow;
-        this.ctx.beginPath();
-        this.ctx.arc(px, py, r * 2, 0, Math.PI * 2);
-        this.ctx.fill();
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(px, py, r * 2, 0, Math.PI * 2);
+        ctx.fill();
         
         // Body
-        const body = this.ctx.createRadialGradient(px - r * 0.3, py - r * 0.3, r * 0.1, px, py, r);
+        const body = ctx.createRadialGradient(px - r * 0.3, py - r * 0.3, r * 0.1, px, py, r);
         body.addColorStop(0, '#ffffff');
         body.addColorStop(0.18, color);
         body.addColorStop(1, '#050b14');
-        this.ctx.fillStyle = body;
-        this.ctx.beginPath();
-        this.ctx.arc(px, py, r, 0, Math.PI * 2);
-        this.ctx.fill();
+        ctx.fillStyle = body;
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fill();
         
         // Craters
-        this.ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
         for (let i = 0; i < 5; i++) {
             const a = i * 2.399;
             const cr = r * (0.32 - i * 0.04);
             const cx = px + Math.cos(a) * r * 0.45;
             const cy = py + Math.sin(a) * r * 0.45;
-            this.ctx.beginPath();
-            this.ctx.arc(cx, cy, cr, 0, Math.PI * 2);
-            this.ctx.fill();
+            ctx.beginPath();
+            ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+            ctx.fill();
         }
     }
     
+    getGlowSprite(color) {
+        if (this._glowCache[color]) return this._glowCache[color];
+        const size = 96;
+        const c = document.createElement('canvas');
+        c.width = size;
+        c.height = size;
+        const g = c.getContext('2d');
+        const grad = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+        grad.addColorStop(0, this.hexToRgba(color, 0.8));
+        grad.addColorStop(0.4, this.hexToRgba(color, 0.3));
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = grad;
+        g.fillRect(0, 0, size, size);
+        this._glowCache[color] = c;
+        return c;
+    }
+    
+    drawGlow(color, x, y, radius) {
+        const sprite = this.getGlowSprite(color);
+        const d = radius * 3;
+        this.ctx.drawImage(sprite, x - d / 2, y - d / 2, d, d);
+    }
+    
     drawStars() {
-        // Stars with twinkle
-        this.stars.forEach(star => {
-            this.ctx.globalAlpha = star.alpha * (0.7 + 0.3 * Math.sin(Date.now() * 0.002 + star.twinkle));
-            this.ctx.fillStyle = '#ffffff';
-            this.ctx.beginPath();
-            this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-            this.ctx.fill();
-        });
-        this.ctx.globalAlpha = 1;
+        const cw = this.canvas.width, ch = this.canvas.height;
+        const ctx = this.ctx;
+        // Tiny stars as cheap rects, grouped by layer to minimize state changes
+        for (let layer = 0; layer < 3; layer++) {
+            ctx.fillStyle = `rgba(255,255,255,${0.25 + layer * 0.25})`;
+            this.stars.forEach(star => {
+                if (star.layer !== layer) return;
+                const tw = 0.6 + 0.4 * Math.sin(star.twinkle += 0.08);
+                ctx.globalAlpha = 0.35 + layer * 0.3 + 0.25 * tw;
+                ctx.fillRect(Math.round(star.x), Math.round(star.y), layer === 0 ? 1 : (layer === 1 ? 2 : 3), layer === 0 ? 1 : (layer === 1 ? 2 : 3));
+            });
+        }
+        ctx.globalAlpha = 1;
         
         // Shooting stars
         this.shootingStars.forEach(star => {
@@ -725,10 +743,8 @@ class ShooterGame {
         const flicker = this.isInvincible() && Math.floor(Date.now() / 90) % 2 === 0;
         this.ctx.globalAlpha = flicker ? 0.4 : 1;
         
-        this.ctx.shadowColor = p.color;
-        this.ctx.shadowBlur = 15;
+        this.drawGlow(p.color, p.x, p.y, 34);
         this.drawShipShape(shape, p.color, p.x, p.y, 1);
-        this.ctx.shadowBlur = 0;
         
         // Cockpit (arrow only)
         if (shape === 'arrow') {
@@ -755,12 +771,10 @@ class ShooterGame {
             const alpha = 0.35 + 0.15 * Math.sin(Date.now() * 0.01);
             this.ctx.strokeStyle = `rgba(61, 214, 255, ${alpha})`;
             this.ctx.lineWidth = 2;
-            this.ctx.shadowColor = '#3dd6ff';
-            this.ctx.shadowBlur = 10;
+            this.drawGlow('#3dd6ff', p.x, p.y, 40);
             this.ctx.beginPath();
             this.ctx.arc(p.x, p.y, 34, 0, Math.PI * 2);
             this.ctx.stroke();
-            this.ctx.shadowBlur = 0;
         }
     }
     
@@ -867,13 +881,8 @@ class ShooterGame {
         else if (pickup.type === 'shield') color = '#3dd6ff';
         
         // Glow aura
-        this.ctx.fillStyle = this.hexToRgba(color, 0.25);
-        this.ctx.beginPath();
-        this.ctx.arc(pickup.x, pickup.y, r + 6, 0, Math.PI * 2);
-        this.ctx.fill();
+        this.drawGlow(color, pickup.x, pickup.y, r + 6);
         
-        this.ctx.shadowColor = color;
-        this.ctx.shadowBlur = 12;
         this.ctx.fillStyle = color;
         this.ctx.beginPath();
         
@@ -898,7 +907,6 @@ class ShooterGame {
         }
         this.ctx.closePath();
         this.ctx.fill();
-        this.ctx.shadowBlur = 0;
     }
     
     shoot() {
@@ -1002,16 +1010,27 @@ class ShooterGame {
         if (this.bossSpawned) return;
         this.bossSpawned = true;
         
-        const level = LEVELS[this.currentLevel];
+        const level = LEVELS[this.currentLevel] || {};
+        const health = Math.round(CONFIG.bossHealth * (1 + this.currentLevel * 0.45));
+        const speedBoost = 1 + this.currentLevel * 0.08;
+        const shape = level.bossShape || 'byte';
+        const color = level.bossColor || '#ff00ff';
+        const radius = this.bossRadius(shape);
         this.boss = {
             x: this.canvas.width / 2,
             y: 150,
-            speedX: 3 * this.speedScale,
-            speedY: 2 * this.speedScale,
-            health: CONFIG.bossHealth + this.currentLevel,
-            maxHealth: CONFIG.bossHealth + this.currentLevel,
-            name: level.bossName,
+            speedX: 3 * this.speedScale * speedBoost,
+            speedY: 2 * this.speedScale * speedBoost,
+            health: health,
+            maxHealth: health,
+            width: radius * 2,
+            name: level.bossName || 'Alien Command',
+            shape: shape,
+            color: color,
+            attack: level.bossAttack || 'spread',
             flash: 0,
+            shotAngle: 0,
+            shotTick: 0,
             nextShotAt: Date.now() + 1400
         };
         this.bossActive = true;
@@ -1027,19 +1046,233 @@ class ShooterGame {
         }, 3000);
     }
     
+    bossRadius(shape) {
+        const radii = {
+            byte: 38,
+            phantom: 42,
+            arachnid: 44,
+            crystal: 36,
+            ringlord: 44,
+            corrupter: 40,
+            golem: 44,
+            overlord: 46
+        };
+        return radii[shape] || 40;
+    }
+    
     bossShoot() {
-        // Boss fires a small volley; smaller screens get fewer, slower bullets
-        const count = Math.max(3, Math.round(5 * this.speedScale));
-        const spread = 1.5 * this.speedScale;
-        for (let i = -(count - 1) / 2; i <= (count - 1) / 2; i++) {
+        const b = this.boss;
+        const s = this.speedScale;
+        const attack = b.attack || 'spread';
+        const tgtY = b.y + 60;
+        
+        // projectile helper: angle downward-forward
+        const fire = (angle, speed) => {
             this.enemyBullets.push({
-                x: this.boss.x,
-                y: this.boss.y + 40,
-                vx: i * spread,
-                speed: 5 * this.speedScale,
+                x: b.x,
+                y: b.y + 30,
+                vx: Math.cos(angle) * speed,
+                speed: Math.sin(angle) * speed,
                 isEnemy: true
             });
+        };
+        const aimAngle = () => {
+            const dx = this.player.x - b.x;
+            const dy = (this.player.y - 10) - (b.y + 30);
+            return Math.atan2(dy, dx);
+        };
+        
+        if (attack === 'spread') {
+            const count = Math.max(3, Math.round(5 * s));
+            const fan = 1.5 * s;
+            const base = aimAngle() + Math.PI / 2;
+            for (let i = -(count - 1) / 2; i <= (count - 1) / 2; i++) {
+                const a = base + (i / (count - 1)) * fan;
+                fire(a, 5 * s);
+            }
+        } else if (attack === 'ring') {
+            const amount = Math.max(10, Math.round(14 * s));
+            for (let i = 0; i < amount; i++) {
+                const a = (i / amount) * Math.PI * 2;
+                fire(a, 4.6 * s);
+            }
+        } else if (attack === 'spiral') {
+            const a = b.shotAngle;
+            fire(a + 0.2, 5.4 * s);
+            fire(a + Math.PI + 0.2, 5.4 * s);
+            b.shotAngle += 0.38;
+        } else if (attack === 'snake') {
+            const a = aimAngle();
+            for (let i = -1; i <= 1; i++) {
+                fire(a + i * 0.09, 4.8 * s);
+            }
+        } else if (attack === 'aim') {
+            const a = aimAngle();
+            fire(a, 6.4 * s);
+            fire(a - 0.22, 5.2 * s);
+            fire(a + 0.22, 5.2 * s);
+        } else if (attack === 'rain') {
+            const count = Math.max(5, Math.round(7 * s));
+            for (let i = 0; i < count; i++) {
+                const a = Math.PI / 2 + (Math.random() - 0.5) * 1.4;
+                fire(a, (4.2 + Math.random() * 1.8) * s);
+            }
+        } else {
+            fire(aimAngle(), 5 * s);
         }
+        b.shotTick++;
+    }
+    
+    drawBoss(boss) {
+        const t = this._bossTime / 60;
+        const c = boss.flash > 0 ? '#ffffff' : boss.color;
+        const ctx = this.ctx;
+        const PI2 = Math.PI * 2;
+        
+        // Pulse glow under every boss
+        this.drawGlow(boss.color, boss.x, boss.y, 62 + Math.sin(t * 3) * 5);
+        
+        ctx.save();
+        ctx.translate(boss.x, boss.y);
+        switch (boss.shape) {
+            case 'byte': // armored chip with pulsing core - Earth
+                ctx.rotate(t * 0.3);
+                ctx.fillStyle = c;
+                ctx.fillRect(-26, -26, 52, 52);
+                ctx.globalAlpha = 0.8;
+                ctx.strokeStyle = c;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(-34, -34, 68, 68);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = 'rgba(10,10,26,0.85)';
+                ctx.beginPath();
+                ctx.moveTo(-26, 8); ctx.lineTo(2, -12); ctx.lineTo(24, 16); ctx.lineTo(6, 26);
+                ctx.closePath(); ctx.fill();
+                break;
+            case 'phantom': // wispy crescent with glaring eye - TrES-2b
+                ctx.globalAlpha = 0.85;
+                ctx.fillStyle = c;
+                ctx.beginPath();
+                ctx.arc(0, -4, 34, Math.PI * 0.15, Math.PI * 1.85);
+                ctx.lineTo(10, 8);
+                ctx.closePath(); ctx.fill();
+                ctx.globalAlpha = 1;
+                ctx.beginPath(); ctx.arc(12, 2, 9, 0, PI2);
+                ctx.fillStyle = '#fff'; ctx.fill();
+                ctx.beginPath(); ctx.arc(10, 2, 4, 0, PI2);
+                ctx.fillStyle = '#ff0020'; ctx.fill();
+                break;
+            case 'arachnid': // spider body with segmented legs - Mars
+                ctx.fillStyle = c;
+                ctx.beginPath(); ctx.arc(0, 0, 26, 0, PI2); ctx.fill();
+                for (let i = 0; i < 6; i++) {
+                    const a = -Math.PI / 2 + (i - 2.5) * 0.62 + Math.sin(t * 2 + i) * 0.06;
+                    ctx.strokeStyle = c;
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(Math.cos(a) * 24, Math.sin(a) * 24 + 4);
+                    ctx.lineTo(Math.cos(a) * 40, Math.sin(a) * 40);
+                    ctx.lineTo(Math.cos(a + 0.5) * 52, Math.sin(a + 0.5) * 52 + 2);
+                    ctx.stroke();
+                }
+                ctx.fillStyle = 'rgba(10,10,25,0.6)';
+                ctx.beginPath(); ctx.arc(0, 4, 12, 0, PI2); ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.beginPath(); ctx.arc(-8, -18, 4, 0, PI2); ctx.arc(8, -18, 4, 0, PI2); ctx.fill();
+                ctx.fillStyle = '#e03030';
+                ctx.beginPath(); ctx.arc(-8, -18, 2, 0, PI2); ctx.arc(8, -18, 2, 0, PI2); ctx.fill();
+                break;
+            case 'crystal': // rotating diamond with facets - Uranus
+                ctx.rotate(t * 0.9);
+                ctx.fillStyle = c;
+                ctx.beginPath();
+                ctx.moveTo(0, -36); ctx.lineTo(22, -8); ctx.lineTo(14, 24); ctx.lineTo(0, 36);
+                ctx.lineTo(-14, 24); ctx.lineTo(-22, -8);
+                ctx.closePath(); ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, -36); ctx.lineTo(0, 36); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-22, -8); ctx.lineTo(22, -8); ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(0, 0, 7 + 3 * Math.sin(t * 3), 0, PI2); ctx.fill();
+                break;
+            case 'ringlord': // core with orbiting band - Saturn
+                ctx.fillStyle = c;
+                ctx.beginPath(); ctx.arc(0, 0, 24, 0, PI2); ctx.fill();
+                ctx.rotate(0.35 + Math.sin(t * 0.8) * 0.15);
+                ctx.strokeStyle = c;
+                ctx.lineWidth = 7;
+                ctx.beginPath(); ctx.ellipse(0, 0, 42, 13, 0, 0, PI2); ctx.stroke();
+                ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.ellipse(0, 0, 35, 9, 0, 0, PI2); ctx.stroke();
+                break;
+            case 'corrupter': // insect with wings, mandibles, stinger - Alpha Centauri
+                ctx.fillStyle = c;
+                for (let i = 0; i < 8; i++) {
+                    const a = (i / 8) * PI2 + t * 0.2;
+                    ctx.fillRect(Math.cos(a) * 26 - 3, Math.sin(a) * 26 - 3, 6, 9);
+                }
+                ctx.beginPath(); ctx.arc(0, 0, 20, 0, PI2); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(0, 20); ctx.lineTo(-6, 36); ctx.lineTo(6, 36); ctx.closePath(); ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.ellipse(-27, -7, 15, 8, -0.6, 0, PI2); ctx.stroke();
+                ctx.beginPath(); ctx.ellipse(27, -7, 15, 8, 0.6, 0, PI2); ctx.stroke();
+                ctx.strokeStyle = c;
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(-10, -18); ctx.lineTo(-17, -29); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(10, -18); ctx.lineTo(17, -29); ctx.stroke();
+                ctx.fillStyle = '#d02020';
+                ctx.beginPath(); ctx.arc(0, -8, 5, 0, PI2); ctx.fill();
+                break;
+            case 'golem': // riveted hexagon plating - Kepler-16b
+                ctx.rotate(t * 0.2);
+                ctx.fillStyle = c;
+                for (let i = 0; i < 7; i++) {
+                    const a = (i / 7) * PI2 + Math.PI / 7;
+                    ctx.beginPath();
+                    ctx.arc(Math.cos(a) * 26, Math.sin(a) * 26, 12, 0, PI2);
+                    ctx.fill();
+                }
+                ctx.beginPath(); ctx.arc(0, 0, 14, 0, PI2); ctx.fill();
+                ctx.fillStyle = 'rgba(20,10,0,0.75)';
+                ctx.beginPath(); ctx.arc(0, 0, 6, 0, PI2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                for (let i = 0; i < 7; i++) {
+                    const a = (i / 7) * PI2 + Math.PI / 7;
+                    ctx.beginPath(); ctx.arc(Math.cos(a) * 26, Math.sin(a) * 26, 2.5, 0, PI2); ctx.fill();
+                }
+                break;
+            case 'overlord': // crowned eye with mandibles - Draugr
+                ctx.fillStyle = c;
+                ctx.beginPath(); ctx.moveTo(-27, 2); ctx.lineTo(-14, 24); ctx.lineTo(-31, 28); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(27, 2); ctx.lineTo(14, 24); ctx.lineTo(31, 28); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.arc(0, 0, 30, Math.PI, 0); ctx.closePath(); ctx.fill();
+                for (let i = -2; i <= 2; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(i * 12 - 4, -22); ctx.lineTo(i * 12, -37); ctx.lineTo(i * 12 + 4, -22);
+                    ctx.closePath(); ctx.fill();
+                }
+                ctx.beginPath(); ctx.arc(0, 4, 17, 0, PI2);
+                ctx.fillStyle = '#fff'; ctx.fill();
+                ctx.beginPath(); ctx.arc(Math.sin(t * 2) * 5, 5, 9, 0, PI2);
+                ctx.fillStyle = '#a33bff'; ctx.fill();
+                ctx.beginPath(); ctx.arc(Math.sin(t * 2) * 5 + 2, 3, 4, 0, PI2);
+                ctx.fillStyle = '#000'; ctx.fill();
+                break;
+            default:
+                ctx.fillStyle = c;
+                ctx.beginPath(); ctx.arc(0, 0, 34, 0, PI2); ctx.fill();
+        }
+        ctx.restore();
+        
+        // Health bar above boss
+        const pct = Math.max(0, boss.health / boss.maxHealth);
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+        this.ctx.fillRect(boss.x - 45, boss.y - 55, 90, 8);
+        this.ctx.fillStyle = '#00ff9d';
+        this.ctx.fillRect(boss.x - 45, boss.y - 55, 90 * pct, 8);
     }
     
     checkCollision(obj1, obj2) {

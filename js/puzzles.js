@@ -210,102 +210,65 @@ const PuzzleSystem = {
         const wrapper = document.createElement('div');
         wrapper.className = 'drag-drop-container';
 
-        // Source items (shuffled)
+        // Source chips (shuffled) - tappable, no drag needed
         const sourceDiv = document.createElement('div');
         sourceDiv.className = 'drag-source';
-        sourceDiv.innerHTML = '<h4>Steps (drag these):</h4>';
+        sourceDiv.innerHTML = '<h4>Steps (tap in order):</h4>';
         
         const shuffledItems = [...puzzle.items].sort(() => Math.random() - 0.5);
         shuffledItems.forEach(item => {
-            const dragItem = document.createElement('div');
-            dragItem.className = 'draggable-item';
-            dragItem.draggable = true;
-            dragItem.textContent = item;
-            dragItem.dataset.value = item;
+            const chip = document.createElement('div');
+            chip.className = 'draggable-item tap-chip';
+            chip.textContent = item;
+            chip.dataset.value = item;
             
-            dragItem.addEventListener('dragstart', (e) => {
-                this.draggedItem = item;
-                e.dataTransfer.setData('text/plain', item);
-                setTimeout(() => dragItem.style.opacity = '0.5', 0);
-            });
-            
-            dragItem.addEventListener('dragend', () => {
-                dragItem.style.opacity = '1';
-            });
-
-            // Touch support
-            dragItem.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                this.draggedItem = item;
-                dragItem.classList.add('dragging');
-            });
-
-            dragItem.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                const touch = e.touches[0];
-                dragItem.style.position = 'fixed';
-                dragItem.style.left = touch.clientX - 50 + 'px';
-                dragItem.style.top = touch.clientY - 20 + 'px';
-                dragItem.style.zIndex = '1000';
-            });
-
-            dragItem.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                dragItem.classList.remove('dragging');
-                dragItem.style.position = '';
-                dragItem.style.left = '';
-                dragItem.style.top = '';
-                dragItem.style.zIndex = '';
-                
-                // Check if dropped over a slot
-                const touch = e.changedTouches[0];
-                dragItem.style.pointerEvents = 'none';
-                const dropSlot = document.elementFromPoint(touch.clientX, touch.clientY);
-                dragItem.style.pointerEvents = '';
-                if (dropSlot && dropSlot.classList.contains('drop-slot') && !dropSlot.classList.contains('filled')) {
-                    dropSlot.classList.add('filled');
-                    dropSlot.textContent = item;
-                    dropSlot.dataset.value = item;
-                    dragItem.remove();
-                }
+            chip.addEventListener('click', () => {
+                if (chip.classList.contains('used')) return;
+                const slots = Array.from(wrapper.querySelectorAll('.drop-slot'));
+                const openSlot = slots.find(s => !s.classList.contains('filled'));
+                if (!openSlot) return;
+                openSlot.classList.add('filled');
+                openSlot.dataset.value = item;
+                const num = openSlot.querySelector('.slot-num');
+                if (num) num.textContent = '✓';
+                const label = openSlot.querySelector('.slot-label');
+                if (label) label.textContent = item;
+                chip.classList.add('used');
             });
             
-            sourceDiv.appendChild(dragItem);
+            sourceDiv.appendChild(chip);
         });
 
-        // Drop zones
+        // Order slots: tap to fill next, tap a filled slot to remove it
         const dropDiv = document.createElement('div');
         dropDiv.className = 'drop-zone';
         dropDiv.innerHTML = '<h4>Correct Order:</h4>';
         
-        for (let i = 0; i < puzzle.items.length; i++) {
+        puzzle.items.forEach((item, i) => {
             const slot = document.createElement('div');
             slot.className = 'drop-slot';
             slot.dataset.index = i;
+            const num = document.createElement('span');
+            num.className = 'slot-num';
+            num.textContent = i + 1;
+            slot.appendChild(num);
+            const label = document.createElement('span');
+            label.className = 'slot-label';
+            slot.appendChild(label);
             
-            slot.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                if (!slot.classList.contains('filled')) {
-                    slot.classList.add('hover');
-                }
-            });
-            
-            slot.addEventListener('dragleave', () => {
-                slot.classList.remove('hover');
-            });
-            
-            slot.addEventListener('drop', (e) => {
-                e.preventDefault();
-                slot.classList.remove('hover');
-                if (!slot.classList.contains('filled') && this.draggedItem) {
-                    slot.classList.add('filled');
-                    slot.textContent = this.draggedItem;
-                    slot.dataset.value = this.draggedItem;
-                }
+            slot.addEventListener('click', () => {
+                if (!slot.classList.contains('filled')) return;
+                const usedChip = Array.from(wrapper.querySelectorAll('.tap-chip'))
+                    .find(c => c.dataset.value === slot.dataset.value && c.classList.contains('used'));
+                if (usedChip) usedChip.classList.remove('used');
+                slot.classList.remove('filled');
+                delete slot.dataset.value;
+                num.textContent = i + 1;
+                label.textContent = '';
             });
             
             dropDiv.appendChild(slot);
-        }
+        });
 
         wrapper.appendChild(sourceDiv);
         wrapper.appendChild(dropDiv);
